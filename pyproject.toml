@@ -19,6 +19,7 @@ dependencies = [
     "numpy",
     "dem_estimation @ git+ssh://git@github.com/MarcSerraPeralta/dem_estimation",
     "iq_readout @ git+ssh://git@github.com/MarcSerraPeralta/iq_readout",
+    "qec_util @ git+ssh://git@github.com/BorisVarbanov/qec-util",
 ]
 keywords = ["repetition code", "qec", "decoders"]
 
