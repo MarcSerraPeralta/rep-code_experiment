@@ -1,0 +1,192 @@
+name: Repetition code 
+description: Device from DiCarlo lab used for the repetition code experiment
+
+freq_order: ["low", "mid", "high"]
+interaction_order: [[1, "left"], [1, "right"], [2, "left"], [2, "right"]]
+
+layout:
+  - qubit: D1
+    role: data
+    coords: [0, 0]
+    freq_group: low
+    neighbors:
+      north_west: null
+      north_east: Z1
+      south_west: null
+      south_east: X1
+  - qubit: D2
+    role: data
+    coords: [2, 0]
+    freq_group: low
+    neighbors:
+      north_west: Z1
+      north_east: X2
+      south_west: X1
+      south_east: null
+  - qubit: D3
+    role: data
+    coords: [4, 0]
+    freq_group: low
+    neighbors:
+      north_west: X2
+      north_east: Z2
+      south_west: null
+      south_east: null
+  - qubit: D4
+    role: data
+    coords: [0, 2]
+    freq_group: high
+    neighbors:
+      north_west: Z3
+      north_east: X3
+      south_west: null
+      south_east: Z1
+  - qubit: D5
+    role: data
+    coords: [2, 2]
+    freq_group: high
+    neighbors:
+      north_west: X3
+      north_east: Z4
+      south_west: Z1
+      south_east: X2
+  - qubit: D6
+    role: data
+    coords: [4, 2]
+    freq_group: high
+    neighbors:
+      north_west: Z4
+      north_east: null
+      south_west: X2
+      south_east: Z2
+  - qubit: D7
+    role: data
+    coords: [0, 4]
+    freq_group: low
+    neighbors:
+      north_west: null
+      north_east: null
+      south_west: Z3
+      south_east: X3
+  - qubit: D8
+    role: data
+    coords: [2, 4]
+    freq_group: low
+    neighbors:
+      north_west: null
+      north_east: X4
+      south_west: X3
+      south_east: Z4
+  - qubit: D9
+    role: data
+    coords: [4, 4]
+    freq_group: low
+    neighbors:
+      north_west: X4
+      north_east: null
+      south_west: Z4
+      south_east: null
+  - qubit: X1
+    role: anc
+    coords: [1, -1]
+    freq_group: mid
+    group: 1
+    stab_type: "x_type"
+    neighbors:
+      north_west: D1
+      north_east: D2
+      south_west: null
+      south_east: null
+      left: D1
+      right: D2
+  - qubit: X2
+    role: anc
+    coords: [3, 1]
+    freq_group: mid
+    group: 2
+    stab_type: "x_type"
+    neighbors:
+      north_west: null
+      north_east: null
+      south_west: D2
+      south_east: D3
+      left: D2
+      right: D3
+  - qubit: X3
+    role: anc
+    coords: [1, 3]
+    freq_group: mid
+    group: 1
+    stab_type: "x_type"
+    neighbors:
+      north_west: D7
+      north_east: D8
+      south_west: null
+      south_east: null
+      left: D7
+      right: D8
+  - qubit: X4
+    role: anc
+    coords: [3, 5]
+    freq_group: mid
+    group: 2
+    stab_type: "x_type"
+    neighbors:
+      north_west: null
+      north_east: null
+      south_west: D8
+      south_east: D9
+      left: D8
+      right: D9
+  - qubit: Z1
+    role: anc
+    coords: [1, 1]
+    freq_group: mid
+    group: 1
+    stab_type: "x_type"
+    neighbors:
+      north_west: D4
+      north_east: D5
+      south_west: null
+      south_east: null
+      left: D4
+      right: D5
+  - qubit: Z2
+    role: anc
+    coords: [5, 1]
+    freq_group: mid
+    group: 1
+    stab_type: "x_type"
+    neighbors:
+      north_west: D6
+      north_east: null
+      south_west: D3
+      south_east: null
+      left: D6
+      right: D3
+  - qubit: Z3
+    role: anc
+    coords: [-1, 3]
+    freq_group: mid
+    group: 2
+    stab_type: "x_type"
+    neighbors:
+      north_west: null
+      north_east: D7
+      south_west: null
+      south_east: D4
+      left: D7
+      right: D4
+  - qubit: Z4
+    role: anc
+    coords: [3, 3]
+    freq_group: mid
+    group: 2
+    stab_type: "x_type"
+    neighbors:
+      north_west: null
+      north_east: null
+      south_west: D5
+      south_east: D6
+      left: D5
+      right: D6

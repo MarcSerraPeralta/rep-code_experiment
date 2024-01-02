@@ -1,7 +1,7 @@
 import numpy as np
 import xarray as xr
 
-from iq_readout.two_state_classifiers import TwoStateLinearClassifierFit
+# from iq_readout.two_state_classifiers import TwoStateLinearClassifierFit
 
 
 def get_readout_classifiers(data: xr.DataArray) -> dict:
