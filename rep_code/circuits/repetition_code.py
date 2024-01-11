@@ -83,12 +83,14 @@ def qec_round(model: Model, layout: Layout, meas_comparison: bool = True) -> Cir
         circuit.append(instruction)
 
     # step 2 and 3: cz dance
-    for group, direction in int_order[:2]:
+    for group, order in int_order[:2]:
         cz_anc_qubits = layout.get_qubits(role="anc", group=group)
-        int_pairs = layout.get_neighbors(
-            cz_anc_qubits, direction=direction, as_pairs=True
-        )
-        int_qubits = list(chain.from_iterable(int_pairs))
+        int_qubits = []
+        for q in cz_anc_qubits:
+            direction = layout.param(qubit=q, param="order")[order]
+            int_pairs = layout.get_neighbors(q, direction=direction, as_pairs=True)
+            int_qubits += list(chain.from_iterable(int_pairs))
+
         for instruction in model.cphase(int_qubits):
             circuit.append(instruction)
 
@@ -112,12 +114,14 @@ def qec_round(model: Model, layout: Layout, meas_comparison: bool = True) -> Cir
         circuit.append(instruction)
 
     # step 5 and 6: cz dance
-    for group, direction in int_order[2:]:
+    for group, order in int_order[2:]:
         cz_anc_qubits = layout.get_qubits(role="anc", group=group)
-        int_pairs = layout.get_neighbors(
-            cz_anc_qubits, direction=direction, as_pairs=True
-        )
-        int_qubits = list(chain.from_iterable(int_pairs))
+        int_qubits = []
+        for q in cz_anc_qubits:
+            direction = layout.param(qubit=q, param="order")[order]
+            int_pairs = layout.get_neighbors(q, direction=direction, as_pairs=True)
+            int_qubits += list(chain.from_iterable(int_pairs))
+
         for instruction in model.cphase(int_qubits):
             circuit.append(instruction)
 

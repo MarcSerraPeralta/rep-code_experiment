@@ -27,8 +27,13 @@ def get_rep_code_layout(qubits: List[str]):
 
         # remove non-used qubits from the neighbours
         qubit_dict["neighbors"] = {
-            o: q if q in qubits else None for o, q in qubit_dict["neighbors"].items()
+            d: q if q in qubits else None for d, q in qubit_dict["neighbors"].items()
         }
+        if qubit_dict["role"] == "anc":
+            qubit_dict["order"] = {
+                o: d if qubit_dict["neighbors"][d] in qubits else None
+                for o, d in qubit_dict["order"].items()
+            }
 
         # add to layout
         new_layout["layout"].append(qubit_dict)

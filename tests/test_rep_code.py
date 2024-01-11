@@ -24,6 +24,7 @@ def test_repetition_code_circuit():
             "D8",
             "X4",
             "D9",
+            "Z3",
         ]
     )
     layout_to_ind = {q: layout.get_inds([q])[0] for q in layout.get_qubits()}

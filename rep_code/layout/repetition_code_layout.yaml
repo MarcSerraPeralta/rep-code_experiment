@@ -91,102 +91,110 @@ layout:
     coords: [1, -1]
     freq_group: mid
     group: 1
+    order:
+      left: north_west
+      right: north_east
     stab_type: "x_type"
     neighbors:
       north_west: D1
       north_east: D2
       south_west: null
       south_east: null
-      left: D1
-      right: D2
   - qubit: X2
     role: anc
     coords: [3, 1]
     freq_group: mid
     group: 2
+    order:
+      left: south_west
+      right: south_east
     stab_type: "x_type"
     neighbors:
       north_west: null
       north_east: null
       south_west: D2
       south_east: D3
-      left: D2
-      right: D3
   - qubit: X3
     role: anc
     coords: [1, 3]
     freq_group: mid
     group: 1
+    order: 
+      left: north_west
+      right: north_east
     stab_type: "x_type"
     neighbors:
       north_west: D7
       north_east: D8
       south_west: null
       south_east: null
-      left: D7
-      right: D8
   - qubit: X4
     role: anc
     coords: [3, 5]
     freq_group: mid
     group: 2
+    order:
+      left: south_west
+      right: south_east
     stab_type: "x_type"
     neighbors:
       north_west: null
       north_east: null
       south_west: D8
       south_east: D9
-      left: D8
-      right: D9
   - qubit: Z1
     role: anc
     coords: [1, 1]
     freq_group: mid
     group: 1
+    order:
+      left: north_west
+      right: north_east
     stab_type: "x_type"
     neighbors:
       north_west: D4
       north_east: D5
       south_west: null
       south_east: null
-      left: D4
-      right: D5
   - qubit: Z2
     role: anc
     coords: [5, 1]
     freq_group: mid
     group: 1
+    order:
+      left: north_west
+      right: south_west
     stab_type: "x_type"
     neighbors:
       north_west: D6
       north_east: null
       south_west: D3
       south_east: null
-      left: D6
-      right: D3
   - qubit: Z3
     role: anc
     coords: [-1, 3]
     freq_group: mid
     group: 2
+    order:
+      left: north_east
+      right: south_east
     stab_type: "x_type"
     neighbors:
       north_west: null
       north_east: D7
       south_west: null
       south_east: D4
-      left: D7
-      right: D4
   - qubit: Z4
     role: anc
     coords: [3, 3]
     freq_group: mid
     group: 2
+    order:
+      left: south_west
+      right: south_east
     stab_type: "x_type"
     neighbors:
       north_west: null
       north_east: null
       south_west: D5
       south_east: D6
-      left: D5
-      right: D6
