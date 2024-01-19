@@ -10,7 +10,7 @@ import xarray as xr
 from qce_interp import DataManager, QubitIDObj, ParityType, Surface17Layer, StateKey
 from rep_code.layout import get_rep_code_layout
 
-EXP_NAME = "distance3 01010"
+EXP_NAME = "distance3_01010"
 
 RAW_DIR = pathlib.Path("raw")
 PRO_DIR = pathlib.Path("processed")
@@ -53,6 +53,10 @@ for k, run_dir in enumerate(RUN_DIRS):
     # layout file
     layout = get_rep_code_layout(all_qubits)
     layout.to_yaml(out_run_dir / "rep_code_layout.yaml")
+
+    # metadata
+    with open(out_run_dir / "metadata.yaml", "w") as outfile:
+        yaml.dump(metadata, outfile, default_flow_style=False)
 
     # calibration data
     print("Converting calibration data to xarray...")
@@ -161,7 +165,8 @@ for k, run_dir in enumerate(RUN_DIRS):
         ideal_anc_meas = np.repeat(
             ideal_anc_meas[:, np.newaxis], repeats=num_rounds, axis=-1
         )
-        # only even rounds should be 0 (starting from qec_round=1)
+        # only even rounds should be 0, starting from qec_round=1
+        # while array starts at 0
         ideal_anc_meas[:, 1::2] = 0
 
         ds = xr.Dataset(

@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 from iq_readout.two_state_classifiers import TwoStateLinearClassifierFit
 from iq_readout.plots import plot_pdf_projected, plot_pdfs_projected
 
-EXP_NAME = "distance3 01010"
+EXP_NAME = "distance3_01010"
 
 EXP_DIR = pathlib.Path("processed") / EXP_NAME
 FILE_NAMES = sorted(os.listdir(EXP_DIR))
@@ -22,6 +22,7 @@ for f_name in FILE_NAMES:
         continue
 
     # calibrate readout
+    print(cal_dir / "readout_calibration_iq.nc")
     iq_readout_data = xr.load_dataset(cal_dir / "readout_calibration_iq.nc")
     calibration_params = {}
 
