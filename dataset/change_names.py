@@ -32,5 +32,5 @@ def rename_directories(root_path):
 
 
 if __name__ == "__main__":
-    directory_path = pathlib.Path("/tudelft.nl/staff-umbrella/repcode/")
+    directory_path = pathlib.Path("/tudelft.net/staff-umbrella/repcode/")
     rename_directories(directory_path)

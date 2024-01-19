@@ -3,7 +3,7 @@ import os
 
 import yaml
 
-RAW_DATA_DIR = pathlib.Path("/tudelft.nl/staff-umbrella/repcode/")
+RAW_DATA_DIR = pathlib.Path("/tudelft.net/staff-umbrella/repcode/")
 
 EXP_NAMES = next(os.walk(RAW_DATA_DIR))[1]  # list only directories
 
