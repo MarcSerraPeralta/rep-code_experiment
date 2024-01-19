@@ -1,4 +1,4 @@
-from typing import Tuple, Optional
+from typing import Tuple, Optional, List
 
 import numpy as np
 import xarray as xr
@@ -34,8 +34,7 @@ def get_final_defects(
 
 def get_measurements(
     dataset: xr.Dataset,
-    classifier,
-    classifier_params: dict,
+    classifiers: dict,
 ) -> Tuple[xr.DataArray]:
     """
     TODO
@@ -48,8 +47,8 @@ def get_measurements(
             .transpose("shot", "qec_round", "iq")
             .values
         )
-        cla = classifier.load(classifier_params[anc_qubit.values.item()])
-        anc_meas.append(cla.predict(anc_meas_q))
+        anc_name = anc_qubit.values.item()
+        anc_meas.append(classifiers[anc_name].predict(anc_meas_q))
     dataset["anc_meas"] = (("anc_qubit", "shot", "qec_round"), anc_meas)
 
     # data_meas
@@ -58,8 +57,8 @@ def get_measurements(
         data_meas_q = (
             dataset.data_meas.sel(data_qubit=data_qubit).transpose("shot", "iq").values
         )
-        cla = classifier.load(classifier_params[data_qubit.values.item()])
-        data_meas.append(cla.predict(data_meas_q))
+        data_name = data_qubit.values.item()
+        data_meas.append(classifiers[data_name].predict(data_meas_q))
     dataset["data_meas"] = (("data_qubit", "shot"), data_meas)
 
     # heralded_init
@@ -70,8 +69,8 @@ def get_measurements(
             .transpose("shot", "heralded_rep", "iq")
             .values
         )
-        cla = classifier.load(classifier_params[qubit.values.item()])
-        heralded_init.append(cla.predict(heralded_init_q))
+        qubit_name = qubit.values.item()
+        heralded_init.append(classifiers[qubit_name].predict(heralded_init_q))
     dataset["heralded_init"] = (("qubit", "shot", "heralded_rep"), heralded_init)
 
     return dataset.anc_meas, dataset.data_meas, dataset.heralded_init
@@ -85,3 +84,55 @@ def ps_shots_heralded(heralded_init: xr.DataArray) -> xr.DataArray:
     mask_bad = (heralded_init != 0).any(dim=["qubit", "heralded_rep"])
     heralded_init = heralded_init.where(~mask_bad, drop=True)
     return heralded_init.shot
+
+
+def to_defects(
+    dataset: xr.Dataset,
+    proj_mat: xr.DataArray,
+    classifiers: dict,
+) -> Tuple[xr.DataArray, xr.DataArray, xr.DataArray]:
+    """
+    Return the defects, final defects and logical flips from
+    a dataset containing the IQ data and heralded measurement data
+    """
+    # digitize measurements
+    anc_meas, data_meas, heralded_init = get_measurements(dataset, classifiers)
+
+    # post select based on heralded measurement
+    shots = ps_shots_heralded(heralded_init)
+    anc_meas, data_meas = anc_meas.sel(shot=shots), data_meas.sel(shot=shots)
+
+    # compute defects
+    # the initial frame is already present in the ideal_anc_meas
+    anc_flips = anc_meas ^ dataset.ideal_anc_meas
+    data_flips = data_meas ^ dataset.ideal_data_meas
+
+    syndromes = get_syndromes(anc_flips)
+    defects = get_defects(syndromes)
+
+    proj_syndrome = (data_flips @ proj_mat) % 2
+    final_defects = get_final_defects(syndromes, proj_syndrome)
+
+    log_flips = data_flips.sum(dim="data_qubit") % 2
+
+    return defects, final_defects, log_flips
+
+
+def get_defect_vector(
+    defects: xr.DataArray,
+    final_defects: xr.DataArray,
+    ordering=List[str],
+) -> np.ndarray:
+    defects = (
+        defects.transpose("shot", "qec_round", "anc_qubit")
+        .sel(anc_qubit=ordering)
+        .values
+    )
+    final_defects = (
+        final_defects.transpose("shot", "anc_qubit").sel(anc_qubit=ordering).values
+    )
+
+    defect_vec = np.concatenate(
+        [defects.reshape(len(defects), -1), final_defects], axis=1
+    )
+    return defect_vec

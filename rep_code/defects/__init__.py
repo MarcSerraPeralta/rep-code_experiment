@@ -4,6 +4,8 @@ from .defects import (
     get_final_defects,
     get_measurements,
     ps_shots_heralded,
+    to_defects,
+    get_defect_vector,
 )
 
 __all__ = [
@@ -12,4 +14,6 @@ __all__ = [
     "get_final_defects",
     "get_measurements",
     "ps_shots_heralded",
+    "to_defects",
+    "get_defect_vector",
 ]
