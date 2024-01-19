@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import Optional, Dict
 from itertools import chain, compress
 
 from stim import Circuit, CircuitInstruction, target_rec
@@ -11,7 +11,7 @@ def memory_experiment(
     model: Model,
     layout: Layout,
     num_rounds: int,
-    data_init: List[int],
+    data_init: Dict[str, bool],
     rot_basis: bool = False,
 ) -> Circuit:
     if not isinstance(num_rounds, int):
@@ -26,18 +26,15 @@ def memory_experiment(
 
     if num_rounds > 2:
         qec_circ = qec_round(model, layout)
-
         experiment = (
             init_circ + first_qec_circ * 2 + qec_circ * (num_rounds - 2) + meas_circuit
         )
-
-        return experiment
-
-    experiment = (
-        init_circ
-        + first_qec_circ * min(num_rounds, 2)
-        + log_meas(model, layout, comp_rounds=1)
-    )
+    elif num_rounds == 2:
+        experiment = (
+            init_circ + first_qec_circ * 2 + log_meas(model, layout, comp_rounds=2)
+        )
+    elif num_rounds == 1:
+        experiment = init_circ + first_qec_circ + log_meas(model, layout, comp_rounds=1)
 
     return experiment
 
@@ -76,7 +73,8 @@ def qec_round(model: Model, layout: Layout, meas_comparison: bool = True) -> Cir
         circuit.append(instruction)
 
     idle_qubits = qubits - set(rot_qubits)
-    for instruction in model.idle(idle_qubits):
+    duration = model.gate_duration("H")
+    for instruction in model.idle(idle_qubits, duration):
         circuit.append(instruction)
 
     for instruction in model.tick():
@@ -95,7 +93,8 @@ def qec_round(model: Model, layout: Layout, meas_comparison: bool = True) -> Cir
             circuit.append(instruction)
 
         idle_qubits = qubits - set(int_qubits)
-        for instruction in model.idle(idle_qubits):
+        duration = model.gate_duration("CZ")
+        for instruction in model.idle(idle_qubits, duration):
             circuit.append(instruction)
 
         for instruction in model.tick():
@@ -107,7 +106,8 @@ def qec_round(model: Model, layout: Layout, meas_comparison: bool = True) -> Cir
         circuit.append(instruction)
 
     idle_qubits = qubits - set(rot_qubits)
-    for instruction in model.idle(idle_qubits):
+    duration = model.gate_duration("H")
+    for instruction in model.idle(idle_qubits, duration):
         circuit.append(instruction)
 
     for instruction in model.tick():
@@ -126,7 +126,8 @@ def qec_round(model: Model, layout: Layout, meas_comparison: bool = True) -> Cir
             circuit.append(instruction)
 
         idle_qubits = qubits - set(int_qubits)
-        for instruction in model.idle(idle_qubits):
+        duration = model.gate_duration("CZ")
+        for instruction in model.idle(idle_qubits, duration):
             circuit.append(instruction)
 
         for instruction in model.tick():
@@ -138,7 +139,8 @@ def qec_round(model: Model, layout: Layout, meas_comparison: bool = True) -> Cir
         circuit.append(instruction)
 
     idle_qubits = qubits - set(rot_qubits)
-    for instruction in model.idle(idle_qubits):
+    duration = model.gate_duration("H")
+    for instruction in model.idle(idle_qubits, duration):
         circuit.append(instruction)
 
     for instruction in model.tick():
@@ -148,7 +150,7 @@ def qec_round(model: Model, layout: Layout, meas_comparison: bool = True) -> Cir
     for instruction in model.measure(anc_qubits):
         circuit.append(instruction)
 
-    for instruction in model.x_gate(data_qubits):
+    for instruction in model.x_echo(data_qubits):
         circuit.append(instruction)
 
     # add detectors ordered as in the measurements
@@ -203,7 +205,8 @@ def log_meas(model: Model, layout: Layout, comp_rounds: Optional[int] = 2) -> Ci
     for instruction in model.measure(data_qubits):
         circuit.append(instruction)
 
-    for instruction in model.idle(anc_qubits):
+    duration = model.gate_duration("M")
+    for instruction in model.idle(anc_qubits, duration):
         circuit.append(instruction)
 
     num_data, num_anc = len(data_qubits), len(anc_qubits)
@@ -230,7 +233,7 @@ def log_meas(model: Model, layout: Layout, comp_rounds: Optional[int] = 2) -> Ci
 
 
 def init_qubits(
-    model: Model, layout: Layout, data_init: List[int], rot_basis: bool = False
+    model: Model, layout: Layout, data_init: Dict[str, bool], rot_basis: bool = False
 ) -> Circuit:
     """
     Returns stim circuit corresponding to initialize the qubits from the repetition
@@ -277,13 +280,17 @@ def init_qubits(
         circuit.append(instruction)
 
     # step 2: X gates on bitstring data qubits
-    exc_qubits = compress(data_qubits, data_init)
+    # Note: compress outputs an iterable. If it is not converted
+    # into a list, then the "if" statement processes the iterable
+    # and the model.x_gate is called with an empty iterable.
+    exc_qubits = list(compress(data_init.keys(), data_init.values()))
     if exc_qubits:
         for instruction in model.x_gate(exc_qubits):
             circuit.append(instruction)
 
     idle_qubits = qubits - set(exc_qubits)
-    for instruction in model.idle(idle_qubits):
+    duration = model.gate_duration("X")
+    for instruction in model.idle(idle_qubits, duration):
         circuit.append(instruction)
 
     for instruction in model.tick():
@@ -296,7 +303,8 @@ def init_qubits(
             circuit.append(instruction)
 
         idle_qubits = qubits - set(rot_qubits)
-        for instruction in model.idle(idle_qubits):
+        duration = model.gate_duration("H")
+        for instruction in model.idle(idle_qubits, duration):
             circuit.append(instruction)
 
         for instruction in model.tick():
