@@ -12,7 +12,7 @@ from rep_code.layout import get_rep_code_layout
 from rep_code.dataset import calibration_to_xarray, qec_to_xarray
 
 
-RAW_DATA_DIR = pathlib.Path("/tudelft.nl/staff-umbrella/repcode/")
+RAW_DATA_DIR = pathlib.Path("/tudelft.net/staff-umbrella/repcode/")
 PRO_DATA_DIR = pathlib.Path(
     "/scratch/marcserraperal/projects/20231220-repetition_code_dicarlo_lab"
 )
@@ -23,7 +23,7 @@ PRO_EXP_NAME = "20230119_initial_data_d3_s010"
 STRING_FORMAT = dict(
     data="rep-code_d{distance}_s{state}_q{data_qubits}_b{basis}_h{time}_r{num_rounds}",
     config="rep-code_d{distance}_s{state}_q{data_qubits}_b{basis}_h{time}_config",
-    readout_calibration="rep-code_d{distance}_s{state}_q{data_qubits}_b{basis}_h{time}_readout_calibration"
+    readout_calibration="rep-code_d{distance}_s{state}_q{data_qubits}_b{basis}_h{time}_readout_calibration",
 )
 
 RUN_DIRS = sorted(os.listdir(RAW_DIR / RAW_EXP_NAME))
@@ -40,10 +40,12 @@ for k, run_dir in enumerate(RUN_DIRS):
     # load metadata and data
     with open(RAW_EXP_DIR / run_dir / "metadata.yaml", "r") as file:
         metadata = yaml.safe_load(file)
-    
+
     # prepare string format data
     string_data = deepcopy(metadata)
-    string_data["state"] = "".join(map(str, [metadata["data_init"][q] for q in metadata["data_qubits"]]))
+    string_data["state"] = "".join(
+        map(str, [metadata["data_init"][q] for q in metadata["data_qubits"]])
+    )
     string_data["time"] = run_dir.split("_")[0]
     string_data["basis"] = "X" if metadata["rot_basis"] else "Z"
 
@@ -56,7 +58,9 @@ for k, run_dir in enumerate(RUN_DIRS):
         qutrit_calibration_points=True,
         involved_data_qubit_ids=[QubitIDObj(q) for q in metadata["data_qubits"]],
         involved_ancilla_qubit_ids=[QubitIDObj(q) for q in metadata["anc_qubits"]],
-        expected_parity_lookup={QubitIDObj(q): ParityType.ODD for q in metadata["data_qubits"]},
+        expected_parity_lookup={
+            QubitIDObj(q): ParityType.ODD for q in metadata["data_qubits"]
+        },
         device_layout=Surface17Layer(),
     )
 
@@ -65,9 +69,9 @@ for k, run_dir in enumerate(RUN_DIRS):
     config_path.mkdir(parents=True, exist_ok=True)
 
     # string format
-    with open(PRO_EXP_DIR / "config_data.yaml", 'w') as file:
+    with open(PRO_EXP_DIR / "config_data.yaml", "w") as file:
         yaml.dump(STRING_FORMAT, file, default_flow_style=False)
-    
+
     # layout
     layout = get_rep_code_layout(metadata["data_qubits"] + metadata["anc_qubits"])
     layout.to_yaml(config_path / "rep_code_layout.yaml")
@@ -75,7 +79,7 @@ for k, run_dir in enumerate(RUN_DIRS):
     # device noise
     with open(RAW_EXP_DIR / run_dir / "device_characterization.yaml", "r") as file:
         device_characterization = yaml.safe_load(file)
-    with open(config_path / "device_characterization.yaml", 'w') as file:
+    with open(config_path / "device_characterization.yaml", "w") as file:
         yaml.dump(device_characterization, file, default_flow_style=False)
 
     # readout calibration data
@@ -92,7 +96,7 @@ for k, run_dir in enumerate(RUN_DIRS):
     # QEC cycle data
     print("\nConverting QEC data to xarray...")
     for k, num_rounds in enumerate(metadata["num_rounds"]):
-        print(f"{k+1}/{len(metadata["num_rounds"])}\r", end="")
+        print(f"{k+1}/{len(metadata['num_rounds'])}\r", end="")
         qec_ds = calibration_ds = qec_to_xarray(
             data_manager=data_manager,
             data_qubits=layout.get_qubits(role="data"),
