@@ -14,7 +14,7 @@ from rep_code.dataset import calibration_to_xarray, qec_to_xarray
 
 RAW_DATA_DIR = pathlib.Path("/tudelft.net/staff-umbrella/repcode/")
 PRO_DATA_DIR = pathlib.Path(
-    "/scratch/marcserraperal/projects/20231220-repetition_code_dicarlo_lab"
+    "/scratch/marcserraperal/projects/20231220-repetition_code_dicarlo_lab/data"
 )
 
 RAW_EXP_NAME = "distance3_01010"
@@ -35,18 +35,19 @@ PRO_EXP_DIR = PRO_DATA_DIR / PRO_EXP_NAME
 PRO_EXP_DIR.mkdir(parents=True, exist_ok=True)
 
 for k, run_dir in enumerate(RUN_DIRS):
-    print(f"\n\n {k+1}/{len(RUN_DIRS)} {run_dir}")
+    print(f"\n\n{k+1}/{len(RUN_DIRS)} {run_dir}")
 
     # load metadata and data
     with open(RAW_EXP_DIR / run_dir / "metadata.yaml", "r") as file:
         metadata = yaml.safe_load(file)
 
     # prepare string format data
+    # skip D in label of data_qubits
     string_data = deepcopy(metadata)
     string_data["state"] = "".join(
         map(str, [metadata["data_init"][q] for q in metadata["data_qubits"]])
     )
-    string_data["data_qubits"] = "".join([q[1:] for q in metadata["data_qubits"]]) # skip D in label of data_qubits
+    string_data["data_qubits"] = "".join([q[1:] for q in metadata["data_qubits"]])
     string_data["time"] = run_dir.split("_")[0]
     string_data["basis"] = "X" if metadata["rot_basis"] else "Z"
 
