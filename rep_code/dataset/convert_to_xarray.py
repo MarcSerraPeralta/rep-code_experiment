@@ -1,10 +1,12 @@
 from typing import List, Dict
 
 import pathlib
+from copy import deepcopy
 
+import numpy as np
 import xarray as xr
 
-from qce_interp import QubitIDObj, StateKey
+from qce_interp import DataManager, QubitIDObj, StateKey
 
 
 def calibration_to_xarray(
@@ -33,17 +35,18 @@ def calibration_to_xarray(
                 qubit_id=QubitIDObj(qubit), state=StateKey(state)
             )
             heral_cal_data = raw_shots[heral_cal_idx]
+            if len(heral_cal_data.shape) == 1:
+                heral_cal_data = heral_cal_data.reshape(len(heral_cal_data), 1)
             heral_cal_qubit.append([heral_cal_data.real, heral_cal_data.imag])
         meas_cal.append(meas_cal_qubit)
         heral_cal.append(heral_cal_qubit)
 
-    heral_reps = 1 if len(heral_cal_data.shape) == 1 else heral_cal_data.shape[1]
-    heral_shots = heral_cal_data.shape[0]
+    heral_shots, heral_reps = heral_cal_data.shape
 
     calibration_ds = xr.Dataset(
         data_vars=dict(
             calibration=(("qubit", "state", "iq", "shot"), meas_cal),
-            heralded_init=(("qubit", "state", "iq", "shot"), heral_cal),
+            heralded_init=(("qubit", "state", "iq", "shot", "heralded_rep"), heral_cal),
         ),
         coords=dict(
             state=calibration_states,
@@ -54,7 +57,7 @@ def calibration_to_xarray(
         ),
     )
 
-    calibration_ds = calibration_ds.transpose("qubit", "state", "shot", "iq")
+    calibration_ds = calibration_ds.transpose("qubit", "state", "shot", "heralded_rep", "iq")
 
     return calibration_ds
 
@@ -73,14 +76,11 @@ def qec_to_xarray(
     all_qubits = data_qubits + anc_qubits
     idx_kernel = data_manager._experiment_index_kernel
 
-    print(data_init)
     data_init = np.array([data_init[q] for q in data_qubits])
-    print(data_init, data_qubits)
     data_init = xr.DataArray(
         data=data_init,
         coords=dict(data_qubit=data_qubits),
     )
-    print(data_init)
 
     # only even rounds should be 0, starting from qec_round=1
     # while array starts at 0, thus 1::2
@@ -94,7 +94,10 @@ def qec_to_xarray(
     ideal_data_meas = deepcopy(data_init)
     if num_rounds % 2 == 1:
         ideal_data_meas = ideal_data_meas ^ 1
-    print(ideal_data_meas)
+
+    # convert to numpy arrays for xr.Dataset creation
+    ideal_data_meas = ideal_data_meas.values
+    data_init = data_init.values
 
     anc_meas = []
     data_meas = []
@@ -107,6 +110,8 @@ def qec_to_xarray(
             qubit_id=QubitIDObj(qubit), cycle_stabilizer_count=num_rounds
         )
         heral_data = raw_shots[heral_idx]
+        if len(heral_data.shape) == 1:
+            heral_data = heral_data.reshape(len(heral_data), 1)
         heralded_cycle.append([heral_data.real, heral_data.imag])
 
         if qubit in anc_qubits:
@@ -124,8 +129,7 @@ def qec_to_xarray(
             data_meas_data = raw_shots[data_meas_idx]
             data_meas.append([data_meas_data.real, data_meas_data.imag])
 
-    heral_reps = 1 if len(heral_data.shape) == 1 else heral_data.shape[1]
-    num_shots = heral_data.shape[0]
+    num_shots, heral_reps = heral_data.shape
 
     qec_ds = xr.Dataset(
         data_vars=dict(

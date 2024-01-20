@@ -26,7 +26,7 @@ STRING_FORMAT = dict(
     readout_calibration="rep-code_d{distance}_s{state}_q{data_qubits}_b{basis}_h{time}_readout_calibration",
 )
 
-RUN_DIRS = sorted(os.listdir(RAW_DIR / RAW_EXP_NAME))
+RUN_DIRS = sorted(os.listdir(RAW_DATA_DIR / RAW_EXP_NAME))
 
 #####################################
 
@@ -46,14 +46,15 @@ for k, run_dir in enumerate(RUN_DIRS):
     string_data["state"] = "".join(
         map(str, [metadata["data_init"][q] for q in metadata["data_qubits"]])
     )
+    string_data["data_qubits"] = "".join([q[1:] for q in metadata["data_qubits"]]) # skip D in label of data_qubits
     string_data["time"] = run_dir.split("_")[0]
     string_data["basis"] = "X" if metadata["rot_basis"] else "Z"
 
     print("Loading DataManager...")
     raw_data_file = RAW_EXP_DIR / run_dir / f"{run_dir}.hdf5"
     data_manager = DataManager.from_file_path(
-        file_path=file_path,
-        rounds=list_num_rounds,
+        file_path=raw_data_file,
+        rounds=metadata["num_rounds"],
         heralded_initialization=True,
         qutrit_calibration_points=True,
         involved_data_qubit_ids=[QubitIDObj(q) for q in metadata["data_qubits"]],
@@ -86,7 +87,7 @@ for k, run_dir in enumerate(RUN_DIRS):
     print("\nConverting readout calibration data to xarray...")
     calibration_ds = calibration_to_xarray(
         data_manager=data_manager,
-        calibration_states=calibration_states,
+        calibration_states=metadata["readout_calibration_states"],
         qubits=metadata["data_qubits"] + metadata["anc_qubits"],
     )
     cal_dir = PRO_EXP_DIR / STRING_FORMAT["readout_calibration"].format(**string_data)
@@ -97,19 +98,20 @@ for k, run_dir in enumerate(RUN_DIRS):
     print("\nConverting QEC data to xarray...")
     for k, num_rounds in enumerate(metadata["num_rounds"]):
         print(f"{k+1}/{len(metadata['num_rounds'])}\r", end="")
-        qec_ds = calibration_ds = qec_to_xarray(
+        qec_ds = qec_to_xarray(
             data_manager=data_manager,
             data_qubits=layout.get_qubits(role="data"),
             anc_qubits=layout.get_qubits(role="anc"),
             num_rounds=num_rounds,
-            data_init=data_init,
+            data_init=metadata["data_init"],
             proj_matrix=layout.projection_matrix(stab_type="x_type"),
         )
         qec_ds = qec_ds.assign_coords(
             meas_reset=False,
-            rot_basis=rot_basis,
+            rot_basis=metadata["rot_basis"],
         )
 
+        string_data["num_rounds"] = num_rounds
         qec_dir = PRO_EXP_DIR / STRING_FORMAT["data"].format(**string_data)
         qec_dir.mkdir(exist_ok=True, parents=True)
         qec_ds.to_netcdf(qec_dir / f"iq_data.nc")
