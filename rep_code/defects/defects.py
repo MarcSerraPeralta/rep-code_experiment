@@ -121,18 +121,11 @@ def to_defects(
 def get_defect_vector(
     defects: xr.DataArray,
     final_defects: xr.DataArray,
-    ordering=List[str],
+    anc_order: List[str],
+    dim_order: Tuple[str, str] = ["qec_round", "anc_qubit"],
 ) -> np.ndarray:
-    defects = (
-        defects.transpose("shot", "qec_round", "anc_qubit")
-        .sel(anc_qubit=ordering)
-        .values
-    )
-    final_defects = (
-        final_defects.transpose("shot", "anc_qubit").sel(anc_qubit=ordering).values
-    )
-
-    defect_vec = np.concatenate(
-        [defects.reshape(len(defects), -1), final_defects], axis=1
-    )
-    return defect_vec
+    defects = defects.sel(anc_qubit=anc_order)
+    final_defects = final_defects.sel(anc_qubit=anc_order)
+    full_defects = xr.concatenate([defects, final_defects], dim="qec_round")
+    full_defects = full_defects.transpose("shot", *dim_order)
+    return full_defects.values
