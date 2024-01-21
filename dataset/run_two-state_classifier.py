@@ -14,7 +14,9 @@ DATA_DIR = pathlib.Path(
 
 EXP_NAME = "20230119_initial_data_d3_s010"
 
-RUN_NAMES = [d for d in os.listdir(DATA_DIR / EXP_NAME) if "_readout_calibration" in d]
+RUN_NAMES = sorted(
+    [d for d in os.listdir(DATA_DIR / EXP_NAME) if "_readout_calibration" in d]
+)
 
 CLASSIFIER = TwoStateLinearClassifierFit
 
