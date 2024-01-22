@@ -43,9 +43,6 @@ for element in sequence_generator(STRING_DATA):
 
     # load model and layout
     layout = Layout.from_yaml(config_dir / "rep_code_layout.yaml")
-    setup = Setup.from_yaml(config_dir / "device_characterization.yaml")
-    qubit_inds = {q: layout.get_inds([q])[0] for q in layout.get_qubits()}
-    model = DecoherenceNoiseModelExp(setup, qubit_inds, symmetric_noise=True)
 
     print(f"\033[F\033[K{config_data['data'].format(**element)}", flush=True)
 
@@ -57,19 +54,20 @@ for element in sequence_generator(STRING_DATA):
 
     # sort defect data into vector with same ordering
     # as the stim circuit
-    anc_order = layout.get_qubits(role="anc")
     defect_vec = get_defect_vector(
         defects,
         final_defects,
-        anc_order=anc_order,
-        dim_order=["qec_round", "anc_qubit"],
+        anc_order=layout.get_qubits(role="anc"),
+        dim_first="anc_qubit",
     )
 
     # get t1/t2+classical meas circuit
     dem_with_edges = stim.DetectorErrorModel.from_file(
         data_dir / f"{EDGES_FROM_NOISE}.dem"
     )
-    edges, boundary_edges, edge_logicals = stim_to_edges(dem_with_edges)
+    edges, boundary_edges, edge_logicals, detector_coords = stim_to_edges(
+        dem_with_edges, return_coords=True
+    )
 
     # get decoding graph including
     # edges and boundary edges
@@ -84,5 +82,5 @@ for element in sequence_generator(STRING_DATA):
     dem = clip_negative_edges(dem)
 
     # to stim DEM format
-    dem = edges_to_stim(dem, edge_logicals)
-    dem.to_file(dem_dir / f"{NOISE_NAME}.dem")
+    dem = edges_to_stim(dem, edge_logicals, detector_coords=detector_coords)
+    dem.to_file(data_dir / f"{NOISE_NAME}.dem")
