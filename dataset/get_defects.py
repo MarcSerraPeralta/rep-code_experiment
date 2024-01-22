@@ -17,40 +17,13 @@ DATA_DIR = pathlib.Path(
 EXP_NAME = "20230119_initial_data_d3_s010"
 
 CLASSIFIER = TwoStateLinearClassifierFit
-STRING_DATA = dict(
-    num_rounds=list(range(1, 60 + 1)),
-    time=[
-        "092510",
-        "034940",
-        "080057",
-        "070552",
-        "054049",
-        "024300",
-        "044440",
-        "101216",
-        "030415",
-        "032451",
-        "041513",
-        "063556",
-        "095015",
-        "073232",
-        "085822",
-        "021352",
-        "014754",
-        "060919",
-        "051344",
-        "083006",
-    ],
-    distance=3,
-    state="010",
-    data_qubits="547",
-    basis="Z",
-)
 
 ###############################
 
 with open(DATA_DIR / EXP_NAME / "config_data.yaml", "r") as file:
     config_data = yaml.safe_load(file)
+
+STRING_DATA = config_data["string_data_options"]
 
 print("\n" * 4, end="")  # for style purposes
 
@@ -63,9 +36,8 @@ for element in sequence_generator(STRING_DATA):
     layout = Layout.from_yaml(config_dir / "rep_code_layout.yaml")
     proj_mat = layout.projection_matrix(stab_type="x_type")
 
-    cla_params = np.load(
-        cal_dir / f"{CLASSIFIER.__name__}_params.npy", allow_pickle=True
-    ).item()
+    cla_name = CLASSIFIER.__name__
+    cla_params = np.load(cal_dir / f"{cla_name}_params.npy", allow_pickle=True).item()
     classifiers = {q: CLASSIFIER().load(cla_params[q]) for q in layout.get_qubits()}
 
     # process data
@@ -84,7 +56,7 @@ for element in sequence_generator(STRING_DATA):
         },
         attrs=dict(ps_fraction=ps_fraction),
     )
-    ds.to_netcdf(data_dir / f"defects_{CLASSIFIER.__name__}.nc")
+    ds.to_netcdf(data_dir / f"defects_{cla_name}.nc")
 
     num_rounds = element["num_rounds"]
     print("\033[F\033[K" * 4, end="", flush=True)
