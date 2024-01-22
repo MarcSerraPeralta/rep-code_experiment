@@ -11,8 +11,7 @@ from rep_code.defects import to_defects
 from rep_code.dataset import sequence_generator
 
 DATA_DIR = pathlib.Path(
-    # "/scratch/marcserraperal/projects/20231220-repetition_code_dicarlo_lab/data"
-    "data"
+    "/scratch/marcserraperal/projects/20231220-repetition_code_dicarlo_lab/data"
 )
 
 EXP_NAME = "20230119_initial_data_d3_s010"
