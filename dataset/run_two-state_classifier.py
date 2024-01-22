@@ -1,5 +1,6 @@
 import pathlib
 import os
+import yaml
 
 import numpy as np
 import xarray as xr
@@ -7,16 +8,14 @@ import matplotlib.pyplot as plt
 
 from iq_readout.two_state_classifiers import TwoStateLinearClassifierFit
 from iq_readout.plots import plot_pdfs_projected
+from rep_code.dataset import sequence_generator
 
 DATA_DIR = pathlib.Path(
-    "/scratch/marcserraperal/projects/20231220-repetition_code_dicarlo_lab/data"
+    # "/scratch/marcserraperal/projects/20231220-repetition_code_dicarlo_lab/data"
+    "data"
 )
 
 EXP_NAME = "20230119_initial_data_d3_s010"
-
-RUN_NAMES = sorted(
-    [d for d in os.listdir(DATA_DIR / EXP_NAME) if "_readout_calibration" in d]
-)
 
 CLASSIFIER = TwoStateLinearClassifierFit
 
@@ -24,9 +23,20 @@ CLASSIFIER = TwoStateLinearClassifierFit
 
 cla_name = CLASSIFIER.__name__
 
-for run_name in RUN_NAMES:
-    print(f"{run_name}\r", end="")
-    cal_dir = DATA_DIR / EXP_NAME / run_name
+with open(DATA_DIR / EXP_NAME / "config_data.yaml", "r") as file:
+    config_data = yaml.safe_load(file)
+
+STRING_DATA = config_data["string_data_options"]
+STRING_DATA.pop("num_rounds")
+
+print("\n", end="")  # for printing purposes
+
+for element in sequence_generator(STRING_DATA):
+    print(
+        f"\033[F\033[K{config_data['readout_calibration'].format(**element)}",
+        flush=True,
+    )
+    cal_dir = DATA_DIR / EXP_NAME / config_data["readout_calibration"].format(**element)
 
     # calibrate readout
     iq_readout_data = xr.load_dataset(cal_dir / "readout_calibration_iq.nc")
