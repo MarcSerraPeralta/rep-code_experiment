@@ -57,10 +57,10 @@ print("\n" * 4, end="")  # for style purposes
 for element in sequence_generator(STRING_DATA):
     data_dir = DATA_DIR / EXP_NAME / config_data["data"].format(**element)
     cal_dir = DATA_DIR / EXP_NAME / config_data["readout_calibration"].format(**element)
-    layout_dir = DATA_DIR / EXP_NAME / config_data["config"].format(**element)
+    config_dir = DATA_DIR / EXP_NAME / config_data["config"].format(**element)
 
     # load classifier and layout
-    layout = Layout.from_yaml(layout_dir / "rep_code_layout.yaml")
+    layout = Layout.from_yaml(config_dir / "rep_code_layout.yaml")
     proj_mat = layout.projection_matrix(stab_type="x_type")
 
     cla_params = np.load(
