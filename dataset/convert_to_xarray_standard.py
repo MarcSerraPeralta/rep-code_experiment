@@ -117,12 +117,12 @@ for k, run_dir in enumerate(RUN_DIRS):
         qec_dir.mkdir(exist_ok=True, parents=True)
         qec_ds.to_netcdf(qec_dir / f"iq_data.nc")
 
-    print("\nDone!")
+        # update string data options
+        for k in string_data_options:
+            if string_data[k] not in string_data_options[k]:
+                string_data_options[k].append(string_data[k])
 
-    # update string data options
-    for k in string_data_options:
-        if string_data[k] not in string_data_options[k]:
-            string_data_options[k].append(string_data[k])
+    print("\nDone!")
 
 # store string format
 STRING_FORMAT["string_data_options"] = string_data_options
