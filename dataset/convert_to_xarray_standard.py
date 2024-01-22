@@ -70,10 +70,6 @@ for k, run_dir in enumerate(RUN_DIRS):
     config_path = PRO_EXP_DIR / STRING_FORMAT["config"].format(**string_data)
     config_path.mkdir(parents=True, exist_ok=True)
 
-    # string format
-    with open(PRO_EXP_DIR / "config_data.yaml", "w") as file:
-        yaml.dump(STRING_FORMAT, file, default_flow_style=False)
-
     # layout
     layout = get_rep_code_layout(metadata["data_qubits"] + metadata["anc_qubits"])
     layout.to_yaml(config_path / "rep_code_layout.yaml")
@@ -118,3 +114,7 @@ for k, run_dir in enumerate(RUN_DIRS):
         qec_ds.to_netcdf(qec_dir / f"iq_data.nc")
 
     print("\nDone!")
+
+# store string format
+with open(PRO_EXP_DIR / "config_data.yaml", "w") as file:
+    yaml.dump(STRING_FORMAT, file, default_flow_style=False)
