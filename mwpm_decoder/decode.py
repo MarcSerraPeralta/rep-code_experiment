@@ -15,14 +15,13 @@ from rep_code.dataset import sequence_generator
 DATA_DIR = pathlib.Path(
     "/scratch/marcserraperal/projects/20231220-repetition_code_dicarlo_lab/data"
 )
-
 OUTPUT_DIR = pathlib.Path(
     "/scratch/marcserraperal/projects/20231220-repetition_code_dicarlo_lab/output_mwpm"
 )
 
 EXP_NAME = "20230119_initial_data_d3_s010"
 
-CLASSIFIER_NAME = "TwoStateLinearClassifierFit"
+DEFECTS_NAME = "defects_TwoStateLinearClassifierFit"
 NOISE_NAME = "t1t2_noise"
 
 ####################
@@ -44,7 +43,7 @@ for element in sequence_generator(STRING_DATA):
     # load
     layout = Layout.from_yaml(config_dir / "rep_code_layout.yaml")
 
-    defects_xr = xr.load_dataset(data_dir / f"defects_{CLASSIFIER_NAME}.nc")
+    defects_xr = xr.load_dataset(data_dir / f"{DEFECTS_NAME}.nc")
     defects = defects_xr.defects
     final_defects = defects_xr.final_defects
     log_flips = defects_xr.log_flips.values

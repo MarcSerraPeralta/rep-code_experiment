@@ -23,7 +23,7 @@ DATA_DIR = pathlib.Path(
 
 EXP_NAME = "20230119_initial_data_d3_s010"
 
-CLASSIFIER_NAME = "TwoStateLinearClassifierFit"
+DEFECTS_NAME = "defects_TwoStateLinearClassifierFit"
 EDGES_FROM_NOISE = "t1t2_noise"
 
 ####################
@@ -47,7 +47,7 @@ for element in sequence_generator(STRING_DATA):
     print(f"\033[F\033[K{config_data['data'].format(**element)}", flush=True)
 
     # load defect data
-    defects_xr = xr.load_dataset(data_dir / f"defects_{CLASSIFIER_NAME}.nc")
+    defects_xr = xr.load_dataset(data_dir / f"{DEFECTS_NAME}.nc")
     defects = defects_xr.defects
     final_defects = defects_xr.final_defects
     log_flips = defects_xr.log_flips.values
@@ -83,4 +83,4 @@ for element in sequence_generator(STRING_DATA):
 
     # to stim DEM format
     dem = edges_to_stim(dem, edge_logicals, detector_coords=detector_coords)
-    dem.to_file(data_dir / f"{NOISE_NAME}_{CLASSIFIER_NAME}.dem")
+    dem.to_file(data_dir / f"{NOISE_NAME}_{DEFECTS_NAME.replace('defects_', '')}.dem")
