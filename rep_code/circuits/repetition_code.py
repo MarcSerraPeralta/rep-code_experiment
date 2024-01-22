@@ -324,12 +324,23 @@ def init_qubits(
 
 
 def get_1d_coords(layout: Layout) -> Dict[str, int]:
+    anc_qubits = layout.get_qubits(role="anc")
     data_qubits = layout.get_qubits(role="data")
-    boundary_qubits = [q for q in data_qubits if len(layout.get_neighbors(q)) == 1]
-    initial_qubit = sorted(boundary_qubits)[0]
-    graph = layout.graph.to_undirected()
+    linear_graph = nx.Graph()
+    for anc_qubit in anc_qubits:
+        directions = layout.graph.nodes("order")[anc_qubit].values()
+        for direction in directions:
+            data_qubit = layout.get_neighbors(anc_qubit, direction=direction)[0]
+            linear_graph.add_edge(anc_qubit, data_qubit)
+
+    nodes_with_one_edge = [
+        node for node, degree in linear_graph.degree() if degree == 1
+    ]
+    initial_qubit = sorted(nodes_with_one_edge)[0]
     qubit_line = sorted(
         layout.get_qubits(),
-        key=lambda x: nx.shortest_path_length(graph, source=initial_qubit, target=x),
+        key=lambda x: nx.shortest_path_length(
+            linear_graph, source=initial_qubit, target=x
+        ),
     )
     return {q: c for q, c in zip(qubit_line, range(len(layout.get_qubits())))}
