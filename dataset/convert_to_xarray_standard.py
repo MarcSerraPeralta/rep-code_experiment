@@ -3,6 +3,7 @@ import pathlib
 import os
 from copy import deepcopy
 import yaml
+import re
 
 import numpy as np
 import xarray as xr
@@ -33,6 +34,9 @@ RUN_DIRS = sorted(os.listdir(RAW_DATA_DIR / RAW_EXP_NAME))
 RAW_EXP_DIR = RAW_DATA_DIR / RAW_EXP_NAME
 PRO_EXP_DIR = PRO_DATA_DIR / PRO_EXP_NAME
 PRO_EXP_DIR.mkdir(parents=True, exist_ok=True)
+
+# find all elements that appear inbetween curly brackets
+string_data_options = {k: [] for k in re.findall(r"\{([^}]+)\}", STRING_FORMAT["data"])}
 
 for k, run_dir in enumerate(RUN_DIRS):
     print(f"\n\n{k+1}/{len(RUN_DIRS)} {run_dir}")
@@ -115,6 +119,12 @@ for k, run_dir in enumerate(RUN_DIRS):
 
     print("\nDone!")
 
+    # update string data options
+    for k in string_data_options:
+        if string_data[k] not in string_data_options[k]:
+            string_data_options[k].append(string_data[k])
+
 # store string format
+STRING_FORMAT["string_data_options"] = string_data_options
 with open(PRO_EXP_DIR / "config_data.yaml", "w") as file:
     yaml.dump(STRING_FORMAT, file, default_flow_style=False)
