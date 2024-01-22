@@ -122,10 +122,28 @@ def get_defect_vector(
     defects: xr.DataArray,
     final_defects: xr.DataArray,
     anc_order: List[str],
-    dim_order: Tuple[str, str] = ["qec_round", "anc_qubit"],
+    dim_first: str = "anc_qubit",
 ) -> np.ndarray:
-    defects = defects.sel(anc_qubit=anc_order)
-    final_defects = final_defects.sel(anc_qubit=anc_order)
-    full_defects = xr.concatenate([defects, final_defects], dim="qec_round")
-    full_defects = full_defects.transpose("shot", *dim_order)
-    return full_defects.values
+    defects = (
+        defects.transpose("shot", "qec_round", "anc_qubit")
+        .sel(anc_qubit=anc_order)
+        .values
+    )
+
+    n_shots, num_rounds, n_anc = defects.shape
+    final_defects = (
+        final_defects.transpose("shot", "anc_qubit").sel(anc_qubit=anc_order).values
+    )
+    final_defects = final_defects.reshape(n_shots, 1, n_anc)
+
+    defect_vec = np.concatenate([defects, final_defects], axis=1)
+
+    if dim_first == "anc_qubit":
+        return defect_vec.reshape(n_shots, -1)
+    elif dim_first == "qec_round":
+        defect_vec = np.swapaxes(defect_vec, 1, 2)
+        return defect_vec.reshape(n_shots, -1)
+    else:
+        raise ValueError(
+            f"'dim_first' must be 'anc_qubit' or 'qec_round', but {dim_first} was given"
+        )

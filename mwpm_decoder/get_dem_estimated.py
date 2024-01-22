@@ -83,4 +83,4 @@ for element in sequence_generator(STRING_DATA):
 
     # to stim DEM format
     dem = edges_to_stim(dem, edge_logicals, detector_coords=detector_coords)
-    dem.to_file(data_dir / f"{NOISE_NAME}.dem")
+    dem.to_file(data_dir / f"{NOISE_NAME}_{CLASSIFIER_NAME}.dem")
