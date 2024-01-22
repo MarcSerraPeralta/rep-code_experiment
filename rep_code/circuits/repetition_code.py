@@ -1,6 +1,7 @@
 from typing import Optional, Dict
 from itertools import chain, compress
 
+import networkx as nx
 from stim import Circuit, CircuitInstruction, target_rec
 
 from qec_util import Layout
@@ -12,13 +13,20 @@ def memory_experiment(
     layout: Layout,
     num_rounds: int,
     data_init: Dict[str, bool],
-    rot_basis: bool = False,
+    basis: str = "Z",
 ) -> Circuit:
     if not isinstance(num_rounds, int):
         raise ValueError(f"num_rounds expected as int, got {type(num_rounds)} instead.")
-
     if num_rounds <= 0:
         raise ValueError("num_rounds needs to be a positive integer")
+    if basis == "Z":
+        rot_basis = False
+    elif basis == "X":
+        rot_basis = True
+    else:
+        raise ValueError(f"'basis' must be 'Z' or 'X', but {basis} was given")
+    if not isinstance(data_init, dict):
+        raise ValueError(f"data_init expected as dict, got {type(num_rounds)} instead.")
 
     init_circ = init_qubits(model, layout, data_init=data_init, rot_basis=rot_basis)
     meas_circuit = log_meas(model, layout)
@@ -62,6 +70,7 @@ def qec_round(model: Model, layout: Layout, meas_comparison: bool = True) -> Cir
     data_qubits = layout.get_qubits(role="data")
     anc_qubits = layout.get_qubits(role="anc")
     qubits = set(data_qubits + anc_qubits)
+    qubit_coords = get_1d_coords(layout)
 
     int_order = layout.interaction_order
 
@@ -165,8 +174,9 @@ def qec_round(model: Model, layout: Layout, meas_comparison: bool = True) -> Cir
     else:
         det_targets = [[target_rec(ind - num_anc)] for ind in range(num_anc)]
 
-    for targets in det_targets:
-        circuit.append("DETECTOR", targets)
+    for anc_qubit, targets in zip(anc_qubits, det_targets):
+        circuit.append("DETECTOR", targets=targets, arg=(qubit_coords[anc_qubit], 0))
+    circuit.append("SHIFT_COORDS", arg=(0, 1))
 
     for instruction in model.tick():
         circuit.append(instruction)
@@ -199,6 +209,7 @@ def log_meas(model: Model, layout: Layout, comp_rounds: Optional[int] = 2) -> Ci
     data_qubits = layout.get_qubits(role="data")
     anc_qubits = layout.get_qubits(role="anc")
     qubits = set(data_qubits + anc_qubits)
+    qubit_coords = get_1d_coords(layout)
 
     circuit = Circuit()
 
@@ -221,7 +232,8 @@ def log_meas(model: Model, layout: Layout, comp_rounds: Optional[int] = 2) -> Ci
             # d_final = projected ^ m[N] ^ m[N-1]
             target = target_rec(anc_ind - num_data - round_ind * num_anc)
             targets.append(target)
-        circuit.append("DETECTOR", targets)
+        circuit.append("DETECTOR", targets=targets, arg=(qubit_coords[anc_qubit], 0))
+    circuit.append("SHIFT_COORDS", arg=(0, 1))
 
     targets = [target_rec(ind) for ind in range(-num_data, 0)]
     circuit.append("OBSERVABLE_INCLUDE", targets, 0)
@@ -258,14 +270,12 @@ def init_qubits(
     """
     anc_qubits = layout.get_qubits(role="anc")
     data_qubits = layout.get_qubits(role="data")
-    nodes = dict(layout.graph.nodes)
-
+    qubit_coords = {node: attr["coords"] for node, attr in layout.graph.nodes.items()}
     qubits = set(data_qubits + anc_qubits)
 
     circuit = Circuit()
 
     # add coordinates to circuit
-    qubit_coords = {node: attr["coords"] for node, attr in nodes.items()}
     for qubit, coords in qubit_coords.items():
         coords = (coords[0], -coords[1])  # stim plots x, -y
         circuit.append(
@@ -311,3 +321,15 @@ def init_qubits(
             circuit.append(instruction)
 
     return circuit
+
+
+def get_1d_coords(layout: Layout) -> Dict[str, int]:
+    data_qubits = layout.get_qubits(role="data")
+    boundary_qubits = [q for q in data_qubits if len(layout.get_neighbors(q)) == 1]
+    initial_qubit = sorted(boundary_qubits)[0]
+    graph = layout.graph.to_undirected()
+    qubit_line = sorted(
+        layout.get_qubits(),
+        key=lambda x: nx.shortest_path_length(graph, source=initial_qubit, target=x),
+    )
+    return {q: c for q, c in zip(qubit_line, range(len(layout.get_qubits())))}
