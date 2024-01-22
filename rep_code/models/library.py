@@ -17,7 +17,7 @@ class DecoherenceNoiseModelExp(DecoherenceNoiseModel):
         else:
             duration = self.gate_duration(name)
 
-            yield CircuitInstruction(name, targets=self.get_inds(qubits))
+            yield CircuitInstruction("X", targets=self.get_inds(qubits))
             yield from self.idle(qubits, duration)
 
 
