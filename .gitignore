@@ -161,3 +161,15 @@ cython_debug/
 
 # macOS' annoying file
 .DS_Store
+
+# jupyter notebook
+*.ipynb
+
+# pictures
+*.png
+
+# report folder
+report/
+
+# unsused folders
+__unused/
