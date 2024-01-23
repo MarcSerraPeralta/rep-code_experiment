@@ -49,9 +49,14 @@ for element in sequence_generator(COMB_STRING_DATA):
     new_config_dir = DATA_DIR / COMB_NAME / new_config_data["config"].format(**element)
     new_config_dir.mkdir(parents=True, exist_ok=True)
 
-    # load & save layout
+    # load & save layout and device characterization
     layout = Layout.from_yaml(config_dir / "rep_code_layout.yaml")
     layout.to_yaml(new_config_dir / "rep_code_layout.yaml")
+
+    with open(config_dir / "device_characterization.yaml", "r") as file:
+        device_characterization = yaml.safe_load(file)
+    with open(config_dir / "device_characterization.yaml", "w") as file:
+        yaml.dump(device_characterization, file, default_flow_style=False)
 
     # combine data
     list_data_qec = []
