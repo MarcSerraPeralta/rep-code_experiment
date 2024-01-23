@@ -7,6 +7,7 @@ from .defects import (
     to_defects,
     get_defect_vector,
 )
+from .plots import plot_defect_rates, plot_average_defect_rate
 
 __all__ = [
     "get_syndromes",
@@ -16,4 +17,6 @@ __all__ = [
     "ps_shots_heralded",
     "to_defects",
     "get_defect_vector",
+    "plot_average_defect_rate",
+    "plot_defect_rates",
 ]
