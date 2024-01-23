@@ -6,7 +6,7 @@ import numpy as np
 import xarray as xr
 import matplotlib.pyplot as plt
 
-from iq_readout.two_state_classifiers import TwoStateLinearClassifierFit
+from iq_readout.two_state_classifiers import *
 from iq_readout.plots import plot_pdfs_projected
 from rep_code.dataset import sequence_generator
 
@@ -16,7 +16,7 @@ DATA_DIR = pathlib.Path(
 
 EXP_NAME = "20230119_initial_data_d3_s010"
 
-CLASSIFIER = TwoStateLinearClassifierFit
+CLASSIFIER = DecayLinearClassifierFit
 
 #################################
 

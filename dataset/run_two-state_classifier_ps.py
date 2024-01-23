@@ -6,7 +6,7 @@ import numpy as np
 import xarray as xr
 import matplotlib.pyplot as plt
 
-from iq_readout.two_state_classifiers import TwoStateLinearClassifierFit
+from iq_readout.two_state_classifiers import *
 from iq_readout.plots import plot_pdfs_projected
 from rep_code.dataset import sequence_generator
 
@@ -16,7 +16,9 @@ DATA_DIR = pathlib.Path(
 
 EXP_NAME = "20230119_initial_data_d3_s010_combined"
 
-CLASSIFIER = TwoStateLinearClassifierFit
+CLASSIFIER = DecayLinearClassifierFit
+
+P0 = 0.5  # probability of the qubit being in state 0
 
 #################################
 
@@ -69,8 +71,8 @@ for element in sequence_generator(STRING_DATA):
             .values
             for i in range(2)
         )
-        her_init_0 = classifier.predict(her_init_0)
-        her_init_1 = classifier.predict(her_init_1)
+        her_init_0 = classifier.predict(her_init_0, p0=P0)
+        her_init_1 = classifier.predict(her_init_1, p0=P0)
         mask_ps_0 = ~her_init_0.sum(axis=1).astype(bool)
         mask_ps_1 = ~her_init_1.sum(axis=1).astype(bool)
         shots_0_ps, shots_1_ps = shots_0[mask_ps_0], shots_1[mask_ps_1]

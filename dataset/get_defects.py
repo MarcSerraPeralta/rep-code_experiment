@@ -6,7 +6,7 @@ import numpy as np
 import xarray as xr
 
 from qec_util import Layout
-from iq_readout.two_state_classifiers import TwoStateLinearClassifierFit
+from iq_readout.two_state_classifiers import *
 from rep_code.defects import to_defects
 from rep_code.dataset import sequence_generator
 
@@ -14,7 +14,7 @@ DATA_DIR = pathlib.Path(
     "/scratch/marcserraperal/projects/20231220-repetition_code_dicarlo_lab/data"
 )
 
-EXP_NAME = "20230119_initial_data_d3_s010"
+EXP_NAME = "20230119_initial_data_d3_s010_combined"
 
 CLASSIFIER = TwoStateLinearClassifierFit
 
