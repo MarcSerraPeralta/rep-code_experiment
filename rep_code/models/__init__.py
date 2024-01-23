@@ -1,3 +1,13 @@
-from .library import DecoherenceNoiseModelExp, NoiselessModelExp, CircuitNoiseModelExp
+from .library import (
+    DecoherenceNoiseModelExp,
+    NoiselessModelExp,
+    CircuitNoiseModelExp,
+    ExperimentalNoiseModelExp,
+)
 
-__all__ = ["DecoherenceNoiseModelExp", "NoiselessModelExp", "CircuitNoiseModelExp"]
+__all__ = [
+    "DecoherenceNoiseModelExp",
+    "NoiselessModelExp",
+    "CircuitNoiseModelExp",
+    "ExperimentalNoiseModelExp",
+]

@@ -2,7 +2,12 @@ from typing import Sequence, Iterator
 
 from stim import CircuitInstruction
 
-from surface_sim.models import DecoherenceNoiseModel, NoiselessModel, CircuitNoiseModel
+from surface_sim.models import (
+    DecoherenceNoiseModel,
+    NoiselessModel,
+    CircuitNoiseModel,
+    ExperimentalNoiseModel,
+)
 
 
 class DecoherenceNoiseModelExp(DecoherenceNoiseModel):
@@ -21,6 +26,14 @@ class DecoherenceNoiseModelExp(DecoherenceNoiseModel):
             yield from self.idle(qubits, duration)
 
 
+class ExperimentalNoiseModelExp(ExperimentalNoiseModel):
+    def x_echo(self, qubits: Sequence[str]) -> Iterator[CircuitInstruction]:
+        duration = 0.5 * (self.gate_duration("X_ECHO") - self.gate_duration("X"))
+        yield from self.idle(qubits, duration)
+        yield from self.x_gate(qubits)
+        yield from self.idle(qubits, duration)
+
+
 class NoiselessModelExp(NoiselessModel):
     def x_echo(self, qubits: Sequence[str]) -> Iterator[CircuitInstruction]:
         yield CircuitInstruction("X", self.get_inds(qubits))
@@ -28,9 +41,4 @@ class NoiselessModelExp(NoiselessModel):
 
 class CircuitNoiseModelExp(CircuitNoiseModel):
     def x_echo(self, qubits: Sequence[str]) -> Iterator[CircuitInstruction]:
-        inds = self.get_inds(qubits)
-        yield CircuitInstruction("X", inds)
-
-        for qubit, ind in zip(qubits, inds):
-            prob = self.param("sq_error_prob", qubit)
-            yield CircuitInstruction("DEPOLARIZE1", [ind], [prob])
+        yield from self.x_gate(qubits)
