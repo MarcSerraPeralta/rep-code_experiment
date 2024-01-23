@@ -31,7 +31,10 @@ def lmfit_par_to_ufloat(param: lmfit.parameter.Parameter) -> ufloat:
 
 
 def get_error_rate(
-    rounds: np.ndarray, log_errors: List[np.ndarray], return_r0: bool = False
+    rounds: np.ndarray,
+    log_errors: List[np.ndarray],
+    distance: int,
+    return_r0: bool = False,
 ) -> ufloat:
     """
 
@@ -40,6 +43,11 @@ def get_error_rate(
     log_errors: np.ndarray(Nrounds, Nshots)
     """
     error_prob = np.array([np.average(x) for x in log_errors])
+    rounds = np.array(rounds)
+
+    # fit only from distance
+    error_prob = error_prob[rounds >= distance]
+    rounds = rounds[rounds >= distance]
 
     guess = LogicalErrorProb().guess(error_prob, rounds)
     fit = LogicalErrorProb().fit(error_prob, guess, r=rounds)
@@ -112,9 +120,15 @@ def plot_fidelity_exp(
 
 
 def plot_fidelity_fit(
-    ax: plt.Axes, rounds: np.ndarray, error_rate: float, r0: float, **kargs_plot
+    ax: plt.Axes,
+    rounds: np.ndarray,
+    error_rate: float,
+    r0: float,
+    distance: int,
+    **kargs_plot,
 ) -> plt.Axes:
     rounds_theo = np.linspace(np.min(rounds), np.max(rounds), 1_000)
+    rounds_theo = rounds_theo[rounds_theo >= distance]
     log_fid = fidelity(error_prob_decay(rounds_theo, error_rate, r0))
 
     ax.plot(rounds_theo, log_fid, **kargs_plot)
