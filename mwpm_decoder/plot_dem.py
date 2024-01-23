@@ -20,11 +20,10 @@ OUTPUT_DIR = pathlib.Path(
     "/scratch/marcserraperal/projects/20231220-repetition_code_dicarlo_lab/output_mwpm"
 )
 
-EXP_NAME = "20230119_initial_data_d3_s010"
+EXP_NAME = "20230119_initial_data_d3_s010_combined"
 
-DEFECTS_NAME = "defects_TwoStateLinearClassifierFit"
 NOISE_NAME_1 = "t1t2_noise"
-NOISE_NAME_2 = "estimated_noise_TwoStateLinearClassifierFit"
+NOISE_NAME_2 = "estimated_noise_DecayLinearClassifierFit"
 
 ####################
 
@@ -45,26 +44,30 @@ for element in sequence_generator(STRING_DATA):
 
     # load
     layout = Layout.from_yaml(config_dir / "rep_code_layout.yaml")
+    figsize = (element["distance"], max(element["num_rounds"] / 2, 2))
 
     # plot dem 1
     dem1 = stim.DetectorErrorModel.from_file(data_dir / f"{NOISE_NAME_1}.dem")
-    fig, ax = plt.subplots()
+    fig, ax = plt.subplots(figsize=figsize)
     plot_dem(ax, dem1)
+    ax.set_ylim(-1, element["num_rounds"] + 1)
     fig.tight_layout()
     fig.savefig(output_dir / f"dem_{NOISE_NAME_1}.pdf", format="pdf")
     plt.close()
 
     # plot dem 2
     dem2 = stim.DetectorErrorModel.from_file(data_dir / f"{NOISE_NAME_2}.dem")
-    fig, ax = plt.subplots()
+    fig, ax = plt.subplots(figsize=figsize)
     plot_dem(ax, dem2)
+    ax.set_ylim(-1, element["num_rounds"] + 1)
     fig.tight_layout()
     fig.savefig(output_dir / f"dem_{NOISE_NAME_2}.pdf", format="pdf")
     plt.close()
 
     # plot comparison
-    fig, ax = plt.subplots()
+    fig, ax = plt.subplots(figsize=figsize)
     plot_dem_difference(ax, dem1, dem2)
+    ax.set_ylim(-1, element["num_rounds"] + 1)
     fig.tight_layout()
     fig.savefig(output_dir / f"dem_{NOISE_NAME_1}_vs_{NOISE_NAME_2}.pdf", format="pdf")
     plt.close()
