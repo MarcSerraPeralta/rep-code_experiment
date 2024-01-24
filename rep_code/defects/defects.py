@@ -87,25 +87,20 @@ def ps_shots_heralded(heralded_init: xr.DataArray) -> xr.DataArray:
 
 
 def to_defects(
-    dataset: xr.Dataset,
+    anc_meas: xr.DataArray,
+    data_meas: xr.DataArray,
+    ideal_anc_meas: xr.DataArray,
+    ideal_data_meas: xr.DataArray,
     proj_mat: xr.DataArray,
-    classifiers: dict,
 ) -> Tuple[xr.DataArray, xr.DataArray, xr.DataArray]:
     """
     Return the defects, final defects and logical flips from
-    a dataset containing the IQ data and heralded measurement data
+    a dataset containing the anc and data measurement outcomes
     """
-    # digitize measurements
-    anc_meas, data_meas, heralded_init = get_measurements(dataset, classifiers)
-
-    # post select based on heralded measurement
-    shots = ps_shots_heralded(heralded_init)
-    anc_meas, data_meas = anc_meas.sel(shot=shots), data_meas.sel(shot=shots)
-
     # compute defects
     # the initial frame is already present in the ideal_anc_meas
-    anc_flips = anc_meas ^ dataset.ideal_anc_meas
-    data_flips = data_meas ^ dataset.ideal_data_meas
+    anc_flips = anc_meas ^ ideal_anc_meas
+    data_flips = data_meas ^ ideal_data_meas
 
     syndromes = get_syndromes(anc_flips)
     defects = get_defects(syndromes)
