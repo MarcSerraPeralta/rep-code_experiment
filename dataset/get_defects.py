@@ -1,3 +1,4 @@
+print("Importing libraries...")
 import pathlib
 import os
 import yaml
@@ -16,9 +17,11 @@ DATA_DIR = pathlib.Path(
 
 EXP_NAME = "20230119_initial_data_d3_s010_combined"
 
-CLASSIFIER = TwoStateLinearClassifierFit
+CLASSIFIER = DecayLinearClassifierFit
 
 ###############################
+
+print("Running script...")
 
 with open(DATA_DIR / EXP_NAME / "config_data.yaml", "r") as file:
     config_data = yaml.safe_load(file)
@@ -37,7 +40,7 @@ for element in sequence_generator(STRING_DATA):
     proj_mat = layout.projection_matrix(stab_type="x_type")
 
     cla_name = CLASSIFIER.__name__
-    cla_params = np.load(cal_dir / f"{cla_name}_params.npy", allow_pickle=True).item()
+    cla_params = np.load(cal_dir / f"{cla_name}_params_ps.npy", allow_pickle=True).item()
     classifiers = {q: CLASSIFIER().load(cla_params[q]) for q in layout.get_qubits()}
 
     # process data

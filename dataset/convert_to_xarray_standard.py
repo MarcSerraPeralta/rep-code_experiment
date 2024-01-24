@@ -18,8 +18,8 @@ PRO_DATA_DIR = pathlib.Path(
     "/scratch/marcserraperal/projects/20231220-repetition_code_dicarlo_lab/data"
 )
 
-RAW_EXP_NAME = "distance3_01010"
-PRO_EXP_NAME = "20230119_initial_data_d3_s010"
+RAW_EXP_NAME = "distance5_01010"
+PRO_EXP_NAME = "20230119_initial_data_d5_s01010"
 
 STRING_FORMAT = dict(
     data="rep-code_d{distance}_s{state}_q{data_qubits}_b{basis}_h{time}_r{num_rounds}",

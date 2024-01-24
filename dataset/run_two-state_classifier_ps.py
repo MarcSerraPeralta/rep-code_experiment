@@ -1,3 +1,4 @@
+print("Importing libraries...")
 import pathlib
 import os
 import yaml
@@ -14,13 +15,15 @@ DATA_DIR = pathlib.Path(
     "/scratch/marcserraperal/projects/20231220-repetition_code_dicarlo_lab/data"
 )
 
-EXP_NAME = "20230119_initial_data_d3_s010_combined"
+EXP_NAME = "20230119_initial_data_d3_s101_combined"
 
-CLASSIFIER = DecayLinearClassifierFit
+CLASSIFIER = TwoStateLinearClassifierFit
 
 P0 = 0.5  # probability of the qubit being in state 0
 
 #################################
+
+print("Running script...")
 
 cla_name = CLASSIFIER.__name__
 

@@ -1,3 +1,4 @@
+print("Importing libraries...")
 import pathlib
 import os
 import yaml
@@ -14,10 +15,12 @@ DATA_DIR = pathlib.Path(
     "/scratch/marcserraperal/projects/20231220-repetition_code_dicarlo_lab/data"
 )
 
-EXP_NAME = "20230119_initial_data_d3_s010"
-COMB_NAME = "20230119_initial_data_d3_s010_combined"
+EXP_NAME = "20230119_initial_data_d5_s01010"
+COMB_NAME = "20230119_initial_data_d5_s01010_combined"
 
 ####################
+
+print("Running script...")
 
 with open(DATA_DIR / EXP_NAME / "config_data.yaml", "r") as file:
     config_data = yaml.safe_load(file)
