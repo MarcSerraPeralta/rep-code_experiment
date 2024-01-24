@@ -1,0 +1,29 @@
+name: "Experimental circuit-level noise setup"
+description: "Setup for a circuit-level noise model that can be used for any distance."
+
+sq_error_prob: &sq_error_prob "sq_error_prob"
+assign_error_flag: &assign_error_flag "assign_error_flag"
+assign_error_prob: &assign_error_prob "assign_error_prob"
+meas_error_prob: &meas_error_prob "meas_error_prob"
+reset_error_prob: &reset_error_prob "reset_error_prob"
+cz_error_prob: &cz_error_prob "cz_error_prob"
+T1: &T1 "T1"
+T2: &T2 "T2"
+
+setup:
+  - sq_error_prob: *sq_error_prob
+    cz_error_prob: *cz_error_prob
+    meas_error_prob: *meas_error_prob
+    reset_error_prob: *reset_error_prob
+    assign_error_flag: *assign_error_flag
+    assign_error_prob: *assign_error_prob
+    T1: *T1
+    T2: *T2
+gate_durations:
+  CZ: 0.040
+  H: 0.030
+  M: 0.500
+  R: 1.000
+  X: 0.030
+  X_ECHO: 0.500
+time_units: us
