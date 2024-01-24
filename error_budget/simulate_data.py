@@ -1,3 +1,4 @@
+print("Importing libraries...")
 import pathlib
 import os
 import yaml
@@ -17,13 +18,15 @@ DATA_DIR = pathlib.Path(
 
 EXP_NAME = "20230123_error_budget_simulation_d5"
 
-CONFIG_DATA = "config_data_scan_sq_error_prob.yaml"
+CONFIG_DATA = "config_data_scan_cz_error_prob.yaml"
 NUM_SHOTS = 100_000
 
 LAYOUT_NAME = "rep_code_layout_d5.yaml"
 NOISE_PARAMS_NAME = "circ_level_noise.yaml"
 
 ###############################
+
+print("Running script...")
 
 CONFIG_DIR = pathlib.Path("configs")
 (DATA_DIR / EXP_NAME).mkdir(parents=True, exist_ok=True)
@@ -110,6 +113,8 @@ for element in sequence_generator(STRING_DATA):
             anc_qubit=layout.get_qubits(role="anc"),
             data_qubit=layout.get_qubits(role="data"),
             qec_round=list(range(1, num_rounds + 1)),
+            meas_reset=False,
+            rot_basis=True if element["basis"] == "X" else False,
         ),
     )
     measurements.to_netcdf(data_dir / f"measurements_{NOISE_MODEL}.nc")
