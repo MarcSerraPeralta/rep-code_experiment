@@ -167,6 +167,7 @@ cython_debug/
 
 # pictures
 *.png
+*.jpeg
 
 # report folder
 report/
