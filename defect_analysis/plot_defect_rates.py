@@ -27,6 +27,17 @@ STRING_DATA = config_data["string_data_options"]
 
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
+colors = [
+    "#1f77b4",
+    "#ff7f0e",
+    "#2ca02c",
+    "#d62728",
+    "#9467bd",
+    "#8c564b",
+    "#e377c2",
+    "#7f7f7f",
+]
+
 print("\n", end="")  # for printing purposes
 
 for element in sequence_generator(STRING_DATA):
@@ -38,10 +49,14 @@ for element in sequence_generator(STRING_DATA):
     defects = defects_xr.defects
     final_defects = defects_xr.final_defects
 
+    kargs_plot = {
+        q: dict(color=colors[k]) for k, q in enumerate(defects_xr.anc_qubit.values)
+    }
+
     fig, ax = plt.subplots()
 
     plot_average_defect_rate(ax, defects, final_defects)
-    plot_defect_rates(ax, defects, final_defects)
+    plot_defect_rates(ax, defects, final_defects, **kargs_plot)
 
     fig.tight_layout()
     fig.savefig(output_dir / f"{DEFECTS_NAME}_rates.pdf", format="pdf")

@@ -37,10 +37,9 @@ def plot_defect_rates(
     """
     Plots defect rates for each ancilla
     """
-
     # arguments for plotting
-    kargs_plot_ = dict(linestyle="-", color="gray", marker=".")
-    kargs_plot_.update(kargs_plot)
+    kargs_default = dict(linestyle="--", marker=".")
+    kargs_plot = {k: {**kargs_default, **v} for k, v in kargs_plot.items()}
 
     # extra round for final defects
     qec_round = defects.qec_round.values
@@ -53,7 +52,9 @@ def plot_defect_rates(
         )
         defects_rate = np.concatenate([defects_rate, [final_defects_rate]])
 
-        kargs_plot_["label"] = str(qubit.values)
+        qubit_name = qubit.values.item()
+        kargs_plot_ = kargs_plot[qubit_name]
+        kargs_plot_ = {"label": qubit_name, **kargs_plot_}
         ax.plot(qec_round, defects_rate, **kargs_plot_)
 
     ax.set_xlabel("QEC round, $r$")
