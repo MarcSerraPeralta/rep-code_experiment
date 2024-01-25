@@ -77,7 +77,7 @@ plot_fidelity_exp(
     color="red",
     linestyle="",
     fmt=".",
-    label="Gaussian Mixture",
+    label=LOG_ERR_NAME_1,
 )
 plot_fidelity_fit(
     ax,
@@ -104,7 +104,7 @@ plot_fidelity_exp(
     color="blue",
     linestyle="",
     fmt=".",
-    label="Decay",
+    label=LOG_ERR_NAME_2,
 )
 plot_fidelity_fit(
     ax,
