@@ -144,8 +144,8 @@ setup:
   reset_error_prob: 0.005
   sq_error_prob: 0.001
 - qubits: 
-  - D7
   - Z3
+  - D7
   cz_error_prob: 0.0131
 - qubits: 
   - D7
@@ -180,8 +180,8 @@ setup:
   - D5
   cz_error_prob: 0.0335
 - qubits: 
-  - D4
   - Z1
+  - D4
   cz_error_prob: 0.0082
 - qubits: 
   - Z1
@@ -192,8 +192,8 @@ setup:
   - D5
   cz_error_prob: 0.0060
 - qubits: 
-  - D5
   - Z4
+  - D5
   cz_error_prob: 0.0117
 - qubits: 
   - Z4
@@ -228,8 +228,8 @@ setup:
   - X2
   cz_error_prob: 0.0107
 - qubits: 
-  - D6
   - Z2
+  - D6
   cz_error_prob: 0.0136
 - qubits: 
   - X2

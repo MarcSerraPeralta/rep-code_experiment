@@ -15,12 +15,12 @@ DATA_DIR = pathlib.Path(
     "/scratch/marcserraperal/projects/20231220-repetition_code_dicarlo_lab/data"
 )
 
-EXP_NAME = "20230123_first_try_simulation"
+EXP_NAME = "20230125_check_defect_rates_d5"
 
 CONFIG_DATA = "config_data.yaml"
-NUM_SHOTS = 50_000
+NUM_SHOTS = 100_000
 
-LAYOUT_NAME = "rep_code_layout.yaml"
+LAYOUT_NAME = "rep_code_layout_d5.yaml"
 NOISE_PARAMS_NAME = "device_characterization.yaml"
 
 ###############################
@@ -103,6 +103,8 @@ for element in sequence_generator(STRING_DATA):
             anc_qubit=layout.get_qubits(role="anc"),
             data_qubit=layout.get_qubits(role="data"),
             qec_round=list(range(1, num_rounds + 1)),
+            meas_reset=False,
+            rot_basis=True if element["basis"] == "X" else False,
         ),
     )
     measurements.to_netcdf(data_dir / f"measurements_{NOISE_MODEL}.nc")
