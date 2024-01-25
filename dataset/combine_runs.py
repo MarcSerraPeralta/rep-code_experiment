@@ -58,7 +58,7 @@ for element in sequence_generator(COMB_STRING_DATA):
 
     with open(config_dir / "device_characterization.yaml", "r") as file:
         device_characterization = yaml.safe_load(file)
-    with open(config_dir / "device_characterization.yaml", "w") as file:
+    with open(new_config_dir / "device_characterization.yaml", "w") as file:
         yaml.dump(device_characterization, file, default_flow_style=False)
 
     # combine data
