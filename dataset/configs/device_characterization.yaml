@@ -1,0 +1,242 @@
+gate_durations:
+  CZ: 0.040
+  H: 0.030
+  M: 0.500
+  R: 1.000
+  X: 0.030
+  X_ECHO: 0.500
+time_units: us
+setup:
+- qubit: D1
+  T1: 38
+  T2: 22
+  assign_error_flag: true
+  assign_error_prob: 0.003
+  meas_error_prob: 0.003
+  reset_error_prob: 0.05
+  sq_error_prob: 0.0005
+- qubit: D2
+  T1: 19
+  T2: 20
+  assign_error_flag: true
+  assign_error_prob: 0.019
+  meas_error_prob: 0.019
+  reset_error_prob: 0.05
+  sq_error_prob: 0.001
+- qubit: D3
+  T1: 33
+  T2: 29
+  assign_error_flag: true
+  assign_error_prob: 0.011
+  meas_error_prob: 0.011
+  reset_error_prob: 0.005
+  sq_error_prob: 0.001
+- qubit: D4
+  T1: 14
+  T2: 17
+  assign_error_flag: true
+  assign_error_prob: 0.011
+  meas_error_prob: 0.011
+  reset_error_prob: 0.005
+  sq_error_prob: 0.001
+- qubit: D5
+  T1: 16
+  T2: 13
+  assign_error_flag: true
+  assign_error_prob: 0.011
+  meas_error_prob: 0.011
+  reset_error_prob: 0.005
+  sq_error_prob: 0.001
+- qubit: D6
+  T1: 12
+  T2: 17
+  assign_error_flag: true
+  assign_error_prob: 0.014
+  meas_error_prob: 0.014
+  reset_error_prob: 0.005
+  sq_error_prob: 0.001
+- qubit: D7
+  T1: 39
+  T2: 20
+  assign_error_flag: true
+  assign_error_prob: 0.005
+  meas_error_prob: 0.005
+  reset_error_prob: 0.005
+  sq_error_prob: 0.0005
+- qubit: D8
+  T1: 19
+  T2: 16
+  assign_error_flag: true
+  assign_error_prob: 0.009
+  meas_error_prob: 0.009
+  reset_error_prob: 0.005
+  sq_error_prob: 0.001
+- qubit: D9
+  T1: 47
+  T2: 26
+  assign_error_flag: true
+  assign_error_prob: 0.005
+  meas_error_prob: 0.005
+  reset_error_prob: 0.005
+  sq_error_prob: 0.001
+- qubit: X1
+  T1: 32
+  T2: 24
+  assign_error_flag: true
+  assign_error_prob: 0.005
+  meas_error_prob: 0.005
+  reset_error_prob: 0.005
+  sq_error_prob: 0.001
+- qubit: X2
+  T1: 16
+  T2: 8
+  assign_error_flag: true
+  assign_error_prob: 0.011
+  meas_error_prob: 0.011
+  reset_error_prob: 0.005
+  sq_error_prob: 0.003
+- qubit: X3
+  T1: 12
+  T2: 8
+  assign_error_flag: true
+  assign_error_prob: 0.011
+  meas_error_prob: 0.011
+  reset_error_prob: 0.005
+  sq_error_prob: 0.001
+- qubit: X4
+  T1: 34
+  T2: 17
+  assign_error_flag: true
+  assign_error_prob: 0.012
+  meas_error_prob: 0.012
+  reset_error_prob: 0.005
+  sq_error_prob: 0.001
+- qubit: Z1
+  T1: 16
+  T2: 17
+  assign_error_flag: true
+  assign_error_prob: 0.009
+  meas_error_prob: 0.009
+  reset_error_prob: 0.005
+  sq_error_prob: 0.001
+- qubit: Z2
+  T1: 10
+  T2: 17
+  assign_error_flag: true
+  assign_error_prob: 0.015
+  meas_error_prob: 0.015
+  reset_error_prob: 0.005
+  sq_error_prob: 0.001
+- qubit: Z3
+  T1: 17
+  T2: 22
+  assign_error_flag: true
+  assign_error_prob: 0.011
+  meas_error_prob: 0.011
+  reset_error_prob: 0.005
+  sq_error_prob: 0.001
+- qubit: Z4
+  T1: 14
+  T2: 18
+  assign_error_flag: true
+  assign_error_prob: 0.028
+  meas_error_prob: 0.028
+  reset_error_prob: 0.005
+  sq_error_prob: 0.001
+- qubits: 
+  - D7
+  - Z3
+  cz_error_prob: 0.0131
+- qubits: 
+  - D7
+  - X3
+  cz_error_prob: 0.0432
+- qubits: 
+  - Z3
+  - D4
+  cz_error_prob: 0.0031
+- qubits: 
+  - X3
+  - D4
+  cz_error_prob: 0.0237
+- qubits: 
+  - X3
+  - D8
+  cz_error_prob: 0.0254
+- qubits: 
+  - D8
+  - X4
+  cz_error_prob: 0.0305
+- qubits: 
+  - X4
+  - D9
+  cz_error_prob: 0.0281
+- qubits: 
+  - D8
+  - D4
+  cz_error_prob: 0.0100
+- qubits: 
+  - X3
+  - D5
+  cz_error_prob: 0.0335
+- qubits: 
+  - D4
+  - Z1
+  cz_error_prob: 0.0082
+- qubits: 
+  - Z1
+  - D1
+  cz_error_prob: 0.0351
+- qubits: 
+  - Z1
+  - D5
+  cz_error_prob: 0.0060
+- qubits: 
+  - D5
+  - Z4
+  cz_error_prob: 0.0117
+- qubits: 
+  - Z4
+  - D9
+  cz_error_prob: 0.0100
+- qubits: 
+  - Z4
+  - D6
+  cz_error_prob: 0.0108
+- qubits: 
+  - D5
+  - X2
+  cz_error_prob: 0.0213
+- qubits: 
+  - Z1
+  - D2
+  cz_error_prob: 0.0210
+- qubits: 
+  - D1
+  - X1
+  cz_error_prob: 0.0258
+- qubits: 
+  - D2
+  - X1
+  cz_error_prob: 0.1078
+- qubits: 
+  - X2
+  - D2
+  cz_error_prob: 0.0566
+- qubits: 
+  - D6
+  - X2
+  cz_error_prob: 0.0107
+- qubits: 
+  - D6
+  - Z2
+  cz_error_prob: 0.0136
+- qubits: 
+  - X2
+  - D3
+  cz_error_prob: 0.0273
+- qubits: 
+  - Z2
+  - D3
+  cz_error_prob: 0.0152
+
