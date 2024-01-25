@@ -1,3 +1,4 @@
+print("Importing libraries...")
 import pathlib
 import yaml
 
@@ -19,6 +20,8 @@ EXP_NAME = "20230119_initial_data_d3_s010_combined"
 DEFECTS_NAME = "defects_DecayLinearClassifierFit"
 
 ############################
+
+print("Running script...")
 
 with open(DATA_DIR / EXP_NAME / "config_data.yaml", "r") as file:
     config_data = yaml.safe_load(file)
