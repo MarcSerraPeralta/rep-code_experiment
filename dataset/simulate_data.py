@@ -9,7 +9,7 @@ from qec_util import Layout
 from surface_sim import Setup
 from rep_code.dataset import sequence_generator
 from rep_code.circuits import memory_experiment
-from rep_code.models import ExperimentalNoiseModelExp
+from rep_code.models import *
 
 DATA_DIR = pathlib.Path(
     "/scratch/marcserraperal/projects/20231220-repetition_code_dicarlo_lab/data"
@@ -21,7 +21,8 @@ CONFIG_DATA = "config_data.yaml"
 NUM_SHOTS = 100_000
 
 LAYOUT_NAME = "rep_code_layout_d5.yaml"
-NOISE_PARAMS_NAME = "device_characterization.yaml"
+NOISE_PARAMS_NAME = "sean_optimized_t1t2.yaml"
+NOISE_MODEL = DecoherenceNoiseModelExp
 
 ###############################
 
@@ -50,7 +51,7 @@ for element in sequence_generator(STRING_DATA):
     setup = Setup.from_yaml(config_dir / "device_characterization.yaml")
 
     qubit_inds = {q: layout.get_inds([q])[0] for q in layout.get_qubits()}
-    model = ExperimentalNoiseModelExp(setup, qubit_inds)
+    model = NOISE_MODEL(setup, qubit_inds)
     NOISE_MODEL = type(model).__name__
 
     # circuit and dem
