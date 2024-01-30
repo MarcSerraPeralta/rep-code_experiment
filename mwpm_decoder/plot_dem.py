@@ -29,8 +29,6 @@ with open(DATA_DIR / EXP_NAME / "config_data.yaml", "r") as file:
 
 STRING_DATA = config_data["string_data_options"]
 
-OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-
 print("\n", end="")  # for printing purposes
 
 for element in sequence_generator(STRING_DATA):
