@@ -15,36 +15,41 @@ DATA_DIR = pathlib.Path(
     "/scratch/marcserraperal/projects/20231220-repetition_code_dicarlo_lab/data"
 )
 
-EXP_NAMES = {
-    "01010": "20230119_initial_data_d5_s01010_combined",
-    "10101": "20230119_initial_data_d5_s10101_combined",
-}
+EXP_NAMES = [
+    "20230119_initial_data_d5_s01010_combined",
+    "20230119_initial_data_d5_s10101_combined",
+]
 COMB_NAME = "20230119_initial_data_d5"
 
 ####################
 
 print("Running script...")
 
-list_states = list(EXP_NAMES.keys())
-list_dirs = [EXP_NAMES[s] for s in list_states]
+list_states = []
 
-with open(DATA_DIR / list_dirs[0] / "config_data.yaml", "r") as file:
+with open(DATA_DIR / EXP_NAMES[0] / "config_data.yaml", "r") as file:
     config_data = yaml.safe_load(file)
+list_states += config_data["string_data_options"]["state"]
 
-for exp_name in list_dirs[1:]:
+for exp_name in EXP_NAMES[1:]:
     with open(DATA_DIR / exp_name / "config_data.yaml", "r") as file:
         other_config_data = yaml.safe_load(file)
+    list_states += other_config_data["string_data_options"]["state"]
+
+    dict1 = {
+        k: v
+        for k, v in other_config_data["string_data_options"].items()
+        if k != "state"
+    }
+    dict2 = {
+        k: v for k, v in config_data["string_data_options"].items() if k != "state"
+    }
 
     # check that they can be merged
-    assert (
-        other_config_data["string_data_options"] == config_data["string_data_options"]
-    )
+    assert dict1 == dict2
 
 new_config_data = deepcopy(config_data)
 new_config_data["string_data_options"]["state"] = list_states
-new_config_data["data"] = new_config_data["data"].replace(
-    "_r{num_rounds}", "_s{state}_r{num_rounds}"
-)
 
 (DATA_DIR / COMB_NAME).mkdir(parents=True, exist_ok=True)
 with open(DATA_DIR / COMB_NAME / "config_data.yaml", "w") as file:
@@ -75,7 +80,7 @@ for element in sequence_generator(config_data["string_data_options"]):
 
     # combine readout data and create folder for each state
     list_data_cal = []
-    for state, exp_name in EXP_NAMES.items():
+    for state, exp_name in zip(list_states, EXP_NAMES):
         data_dir = DATA_DIR / exp_name / config_data["data"].format(**element)
         new_data_dir = (
             DATA_DIR
