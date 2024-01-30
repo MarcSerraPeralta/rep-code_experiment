@@ -44,7 +44,7 @@ for element in sequence_generator(STRING_DATA):
 
     # load
     layout = Layout.from_yaml(config_dir / "rep_code_layout.yaml")
-    figsize = (element["distance"], max(element["num_rounds"] / 2, 2))
+    figsize = (element["distance"], max(element["num_rounds"], 2))
 
     # plot dem 1
     dem1 = stim.DetectorErrorModel.from_file(data_dir / f"{NOISE_NAME_1}.dem")

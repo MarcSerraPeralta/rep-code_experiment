@@ -42,7 +42,10 @@ def draw_edges(
     edgelist: List,
     edge_values: List,
     edge_cmap,
+    edge_vmin: float,
+    edge_vmax: float,
     add_text: bool = True,
+    color=None,
 ) -> List:
     lines = []
     curve_weight = 0.0
@@ -50,16 +53,15 @@ def draw_edges(
     real_nodes = [n for n in graph.nodes() if "boundary" not in str(n)]
     index_to_position_vec = {n: graph.nodes[n]["coords"] for n in real_nodes}
 
-    # set up colors for edges
-    edge_cmap = colormaps["rainbow"]
-    edge_vmin, edge_vmax = np.min(edge_values), np.max(edge_values)
-
-    # # Create a color map based on the edge probability
+    # Create a color map based on the edge probability
     norm = plt.Normalize(vmin=edge_vmin, vmax=edge_vmax)
     mappable = plt.cm.ScalarMappable(norm=norm, cmap=edge_cmap)
 
     for index, ((u, v), (edge_value)) in enumerate(zip(edgelist, edge_values)):
-        color = mappable.to_rgba(edge_value)
+        if color is None:
+            color_edge = mappable.to_rgba(edge_value)
+        else:
+            color_edge = color
 
         p1 = np.array(index_to_position_vec[u])
         p2 = np.array(index_to_position_vec[v])
@@ -72,7 +74,7 @@ def draw_edges(
         if in_even_round:
             total_weight *= -1
 
-        line: FancyArrowPatch = draw_edge(p1, p2, total_weight, color, alpha=1.0)
+        line: FancyArrowPatch = draw_edge(p1, p2, total_weight, color_edge, alpha=1.0)
         ax.add_patch(line)
         lines.append(line)
 
@@ -162,30 +164,70 @@ def plot_dem(
         graph, pos=pos, labels=labels, ax=ax, font_color="white", font_size=6
     )
 
-    # Draw edges with curves
+    # set up colors for edges
+    edges = graph.edges()
+    probs = np.array([nx.get_edge_attributes(graph, "prob")[e] for e in edges])
     edge_cmap = colormaps["rainbow"]
+    edge_vmin = np.min(np.log10(probs[probs != 0]))
+    edge_vmax = np.max(np.log10(probs[probs != 0]))
+
+    # Draw edges with curves
     edge_list = [(u, v) for u, v in graph.edges() if "boundary" not in f"{u}{v}"]
-    edge_values = [np.log10(graph.edges[e]["prob"]) for e in edge_list]
+    edge_values = [graph.edges[e]["prob"] for e in edge_list]
+    edge_list_positive = [e for e, p in zip(edge_list, edge_values) if p > 0]
+    edge_values_positive = [
+        np.log10(p) for e, p in zip(edge_list, edge_values) if p > 0
+    ]
     lines = draw_edges(
         graph=graph,
         ax=ax,
-        edgelist=edge_list,
-        edge_values=edge_values,
+        edgelist=edge_list_positive,
+        edge_values=edge_values_positive,
         edge_cmap=edge_cmap,
+        edge_vmin=edge_vmin,
+        edge_vmax=edge_vmax,
         add_text=add_text,
+    )
+    edge_list_zero = [e for e, p in zip(edge_list, edge_values) if p == 0]
+    edge_values_zero = [None for e, p in zip(edge_list, edge_values) if p == 0]
+    draw_edges(
+        graph=graph,
+        ax=ax,
+        edgelist=edge_list_zero,
+        edge_values=edge_values_zero,
+        edge_cmap=edge_cmap,
+        edge_vmin=edge_vmin,
+        edge_vmax=edge_vmax,
+        add_text=False,
+        color="gray",
     )
 
     # draw boundary edges
     pos = {n: graph.nodes[n]["coords"] for n in graph.nodes()}
     edge_list = [(u, v) for u, v in graph.edges() if "boundary" in f"{u}{v}"]
-    edge_color = [np.log10(graph.edges[e]["prob"]) for e in edge_list]
+    edge_color = [graph.edges[e]["prob"] for e in edge_list]
+    edge_list_positive = [e for e, p in zip(edge_list, edge_values) if p > 0]
+    edge_values_positive = [
+        np.log10(p) for e, p in zip(edge_list, edge_values) if p > 0
+    ]
     lines = nx.draw_networkx_edges(
         graph,
         pos=pos,
         ax=ax,
-        edgelist=edge_list,
-        edge_color=edge_color,
+        edgelist=edge_list_positive,
+        edge_color=edge_values_positive,
         edge_cmap=edge_cmap,
+        edge_vmin=edge_vmin,
+        edge_vmax=edge_vmax,
+    )
+
+    edge_list_zero = [e for e, p in zip(edge_list, edge_values) if p == 0]
+    nx.draw_networkx_edges(
+        graph,
+        pos=pos,
+        ax=ax,
+        edgelist=edge_list_zero,
+        edge_color="gray",
     )
 
     # Add a colorbar to the right of the plot
@@ -274,6 +316,8 @@ def plot_dem_difference(
         edgelist=edge_list,
         edge_values=edge_values,
         edge_cmap=edge_cmap,
+        edge_vmin=edge_vmin,
+        edge_vmax=edge_vmax,
         add_text=add_text,
     )
 
@@ -288,6 +332,8 @@ def plot_dem_difference(
         edgelist=edge_list,
         edge_color=edge_color,
         edge_cmap=edge_cmap,
+        edge_vmin=edge_vmin,
+        edge_vmax=edge_vmax,
     )
 
     # Add a colorbar to the right of the plot
