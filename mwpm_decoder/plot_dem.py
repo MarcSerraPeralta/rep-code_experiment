@@ -14,13 +14,10 @@ from rep_code.decoding import plot_dem, plot_dem_difference
 
 
 DATA_DIR = pathlib.Path(
-    "/scratch/marcserraperal/projects/20231220-repetition_code_dicarlo_lab/data"
-)
-OUTPUT_DIR = pathlib.Path(
     "/scratch/marcserraperal/projects/20231220-repetition_code_dicarlo_lab/output_mwpm"
 )
 
-EXP_NAME = "20230119_initial_data_d3_s010_combined"
+EXP_NAME = "20230119_initial_data_d3"
 
 NOISE_NAME_1 = "exp-circ-level_noise"
 NOISE_NAME_2 = "estimated_noise_DecayLinearClassifierFit"
@@ -37,13 +34,10 @@ OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 print("\n", end="")  # for printing purposes
 
 for element in sequence_generator(STRING_DATA):
-    config_dir = DATA_DIR / EXP_NAME / config_data["config"].format(**element)
     data_dir = DATA_DIR / EXP_NAME / config_data["data"].format(**element)
-    output_dir = OUTPUT_DIR / EXP_NAME / config_data["data"].format(**element)
-    output_dir.mkdir(parents=True, exist_ok=True)
+    print(f"\033[F\033[K{data_dir}", flush=True)
 
-    # load
-    layout = Layout.from_yaml(config_dir / "rep_code_layout.yaml")
+    # figure inputs
     figsize = (element["distance"], max(element["num_rounds"], 2))
 
     # plot dem 1
@@ -52,7 +46,7 @@ for element in sequence_generator(STRING_DATA):
     plot_dem(ax, dem1)
     ax.set_ylim(-1, element["num_rounds"] + 1)
     fig.tight_layout()
-    fig.savefig(output_dir / f"dem_{NOISE_NAME_1}.pdf", format="pdf")
+    fig.savefig(data_dir / f"dem_{NOISE_NAME_1}.pdf", format="pdf")
     plt.close()
 
     # plot dem 2
@@ -61,7 +55,7 @@ for element in sequence_generator(STRING_DATA):
     plot_dem(ax, dem2)
     ax.set_ylim(-1, element["num_rounds"] + 1)
     fig.tight_layout()
-    fig.savefig(output_dir / f"dem_{NOISE_NAME_2}.pdf", format="pdf")
+    fig.savefig(data_dir / f"dem_{NOISE_NAME_2}.pdf", format="pdf")
     plt.close()
 
     # plot comparison
@@ -69,7 +63,5 @@ for element in sequence_generator(STRING_DATA):
     plot_dem_difference(ax, dem1, dem2, add_text=False)
     ax.set_ylim(-1, element["num_rounds"] + 1)
     fig.tight_layout()
-    fig.savefig(output_dir / f"dem_{NOISE_NAME_1}_vs_{NOISE_NAME_2}.pdf", format="pdf")
+    fig.savefig(data_dir / f"dem_{NOISE_NAME_1}_vs_{NOISE_NAME_2}.pdf", format="pdf")
     plt.close()
-
-    print(f"\033[F\033[K{config_data['data'].format(**element)}", flush=True)
