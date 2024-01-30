@@ -22,7 +22,7 @@ OUTPUT_DIR = pathlib.Path(
 
 EXP_NAME = "20230119_initial_data_d3_s010_combined"
 
-NOISE_NAME_1 = "t1t2_noise"
+NOISE_NAME_1 = "exp-circ-level_noise"
 NOISE_NAME_2 = "estimated_noise_DecayLinearClassifierFit"
 
 ####################
@@ -66,7 +66,7 @@ for element in sequence_generator(STRING_DATA):
 
     # plot comparison
     fig, ax = plt.subplots(figsize=figsize)
-    plot_dem_difference(ax, dem1, dem2)
+    plot_dem_difference(ax, dem1, dem2, add_text=False)
     ax.set_ylim(-1, element["num_rounds"] + 1)
     fig.tight_layout()
     fig.savefig(output_dir / f"dem_{NOISE_NAME_1}_vs_{NOISE_NAME_2}.pdf", format="pdf")
