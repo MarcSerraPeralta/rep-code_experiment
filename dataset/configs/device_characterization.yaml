@@ -1,9 +1,9 @@
 gate_durations:
   CZ: 0.040
-  H: 0.030
+  H: 0.020
   M: 0.500
   R: 1.000
-  X: 0.030
+  X: 0.020
   X_ECHO: 0.500
 time_units: us
 setup:
