@@ -15,14 +15,17 @@ from rep_code.dataset import sequence_generator
 DATA_DIR = pathlib.Path(
     "/scratch/marcserraperal/projects/20231220-repetition_code_dicarlo_lab/data"
 )
+DEM_DIR = pathlib.Path(
+    "/scratch/marcserraperal/projects/20231220-repetition_code_dicarlo_lab/dems"
+)
 OUTPUT_DIR = pathlib.Path(
     "/scratch/marcserraperal/projects/20231220-repetition_code_dicarlo_lab/output_mwpm"
 )
 
-EXP_NAME = "20230119_initial_data_d3_s010"
+EXP_NAME = "20230119_initial_data_d3"
 
-DEFECTS_NAME = "defects_TwoStateLinearClassifierFit"
-NOISE_NAME = "t1t2_noise"
+DEFECTS_NAME = "defects_DecayLinearClassifierFit"
+NOISE_NAME = "estimated_noise_DecayLinearClassifierFit"
 
 ####################
 
@@ -38,7 +41,9 @@ print("\n", end="")  # for printing purposes
 for element in sequence_generator(STRING_DATA):
     config_dir = DATA_DIR / EXP_NAME / config_data["config"].format(**element)
     data_dir = DATA_DIR / EXP_NAME / config_data["data"].format(**element)
+    dem_dir = DEM_DIR / EXP_NAME / config_data["data"].format(**element)
     output_dir = OUTPUT_DIR / EXP_NAME / config_data["data"].format(**element)
+    output_dir.mkdir(parents=True, exist_ok=True)
 
     # load
     layout = Layout.from_yaml(config_dir / "rep_code_layout.yaml")
@@ -57,7 +62,7 @@ for element in sequence_generator(STRING_DATA):
     )
 
     # dem and mwpm
-    dem = stim.DetectorErrorModel.from_file(data_dir / f"{NOISE_NAME}.dem")
+    dem = stim.DetectorErrorModel.from_file(dem_dir / f"{NOISE_NAME}.dem")
     mwpm = pymatching.Matching(dem)
 
     # decode
@@ -72,6 +77,6 @@ for element in sequence_generator(STRING_DATA):
     log_errors.to_netcdf(output_dir / f"log_errors_{NOISE_NAME}.nc")
 
     print(
-        f"\033[F\033[K{config_data['data'].format(**element)} p_L={np.average(log_errors):0.3f}",
+        f"\033[F\033[K{data_dir} p_L={np.average(log_errors):0.3f}",
         flush=True,
     )

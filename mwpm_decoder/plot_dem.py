@@ -14,7 +14,7 @@ from rep_code.decoding import plot_dem, plot_dem_difference
 
 
 DATA_DIR = pathlib.Path(
-    "/scratch/marcserraperal/projects/20231220-repetition_code_dicarlo_lab/output_mwpm"
+    "/scratch/marcserraperal/projects/20231220-repetition_code_dicarlo_lab/dems"
 )
 
 EXP_NAME = "20230119_initial_data_d3"
