@@ -1,3 +1,4 @@
+print("Importing libraries...")
 import pathlib
 import os
 import yaml
@@ -22,15 +23,20 @@ OUTPUT_DIR = pathlib.Path(
     "/scratch/marcserraperal/projects/20231220-repetition_code_dicarlo_lab/output_mwpm"
 )
 
-EXP_NAME = "20230119_initial_data_d3"
+EXP_NAME = "20230119_initial_data_d5"
 
 DEFECTS_NAME = "defects_DecayLinearClassifierFit"
 NOISE_NAME = "estimated_noise_DecayLinearClassifierFit"
 
 ####################
 
+print("Running script...")
+
 with open(DATA_DIR / EXP_NAME / "config_data.yaml", "r") as file:
     config_data = yaml.safe_load(file)
+
+with open(DEM_DIR / EXP_NAME / "config_data.yaml", "r") as file:
+    config_data_dem = yaml.safe_load(file)
 
 STRING_DATA = config_data["string_data_options"]
 
@@ -41,7 +47,7 @@ print("\n", end="")  # for printing purposes
 for element in sequence_generator(STRING_DATA):
     config_dir = DATA_DIR / EXP_NAME / config_data["config"].format(**element)
     data_dir = DATA_DIR / EXP_NAME / config_data["data"].format(**element)
-    dem_dir = DEM_DIR / EXP_NAME / config_data["data"].format(**element)
+    dem_dir = DEM_DIR / EXP_NAME / config_data_dem["data"].format(**element)
     output_dir = OUTPUT_DIR / EXP_NAME / config_data["data"].format(**element)
     output_dir.mkdir(parents=True, exist_ok=True)
 
