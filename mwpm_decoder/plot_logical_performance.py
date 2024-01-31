@@ -1,3 +1,4 @@
+print("Importing libraries...")
 import pathlib
 import os
 
@@ -18,20 +19,19 @@ from rep_code.decoding import (
 from rep_code.dataset import sequence_generator
 
 
-CONFIG_DIR = pathlib.Path(
-    "/scratch/marcserraperal/projects/20231220-repetition_code_dicarlo_lab/data"
-)
 DATA_DIR = pathlib.Path(
     "/scratch/marcserraperal/projects/20231220-repetition_code_dicarlo_lab/output_mwpm"
 )
 
-EXP_NAME = "20230119_initial_data_d3_s010_combined"
+EXP_NAME = "20230119_initial_data_d5"
 
 LOG_ERR_NAME = "log_errors_estimated_noise_DecayLinearClassifierFit"
 
 ####################
 
-with open(CONFIG_DIR / EXP_NAME / "config_data.yaml", "r") as file:
+print("Running script...")
+
+with open(DATA_DIR / EXP_NAME / "config_data.yaml", "r") as file:
     config_data = yaml.safe_load(file)
 
 STRING_DATA = config_data["string_data_options"]
@@ -50,10 +50,11 @@ for num_rounds in sequence_generator({"num_rounds": NUM_ROUNDS}):
         # load logical errors
         log_errors = xr.load_dataarray(data_dir / f"{LOG_ERR_NAME}.nc")
 
-        list_log_errors[num_rounds["num_rounds"]] += log_errors.values.tolist()
+        # flatten the log_errors because they make have dimensions (e.g. state)
+        list_log_errors[num_rounds["num_rounds"]] += log_errors.values.flatten().tolist()
 
         print(
-            f"\033[F\033[K{config_data['data'].format(**element, **num_rounds)} p_L={np.average(log_errors):0.3f}",
+            f"\033[F\033[K{data_dir} p_L={np.average(log_errors):0.3f}",
             flush=True,
         )
 
