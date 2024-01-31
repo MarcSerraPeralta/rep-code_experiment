@@ -165,9 +165,15 @@ def plot_error_prob_exp(
 
 
 def plot_error_prob_fit(
-    ax: plt.Axes, rounds: np.ndarray, error_rate: float, r0: float, **kargs_plot
+    ax: plt.Axes,
+    rounds: np.ndarray,
+    error_rate: float,
+    r0: float,
+    distance: int,
+    **kargs_plot,
 ) -> plt.Axes:
     rounds_theo = np.linspace(np.min(rounds), np.max(rounds), 1_000)
+    rounds_theo = rounds_theo[rounds_theo >= distance]
     error_prob = error_prob_decay(rounds_theo, error_rate, r0)
 
     ax.plot(rounds_theo, 1 - 2 * error_prob, **kargs_plot)
