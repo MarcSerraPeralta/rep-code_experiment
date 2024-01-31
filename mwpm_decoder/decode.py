@@ -40,7 +40,9 @@ with open(DEM_DIR / EXP_NAME / "config_data.yaml", "r") as file:
 
 STRING_DATA = config_data["string_data_options"]
 
-OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+(OUTPUT_DIR / EXP_NAME).mkdir(parents=True, exist_ok=True)
+with open(OUTPUT_DIR / EXP_NAME / "config_data.yaml", "w") as file:
+    yaml.dump(config_data, file, default_flow_style=False)
 
 print("\n", end="")  # for printing purposes
 
