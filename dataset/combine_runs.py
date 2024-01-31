@@ -15,8 +15,8 @@ DATA_DIR = pathlib.Path(
     "/scratch/marcserraperal/projects/20231220-repetition_code_dicarlo_lab/data"
 )
 
-EXP_NAME = "20230119_initial_data_d5_s01010"
-COMB_NAME = "20230119_initial_data_d5_s01010_combined"
+EXP_NAME = "20230119_initial_data_d3_s010"
+COMB_NAME = "20230119_initial_data_d3_s010_combined"
 
 ####################
 
@@ -64,11 +64,15 @@ for element in sequence_generator(COMB_STRING_DATA):
     # combine data
     list_data_qec = []
     list_data_cal = []
+    num_shots_qec = 0
+    num_shots_cal = 0
     for time in list_time:
         data_dir = (
             DATA_DIR / EXP_NAME / config_data["data"].format(**element, time=time)
         )
         data = xr.load_dataset(data_dir / "iq_data.nc")
+        data["shot"] = data["shot"] + num_shots_qec
+        num_shots_qec += len(data.shot)
         list_data_qec.append(data)
 
         data_dir = (
@@ -77,17 +81,17 @@ for element in sequence_generator(COMB_STRING_DATA):
             / config_data["readout_calibration"].format(**element, time=time)
         )
         data = xr.load_dataset(data_dir / "readout_calibration_iq.nc")
+        data["shot"] = data["shot"] + num_shots_cal
+        num_shots_cal += len(data.shot)
         list_data_cal.append(data)
 
-    full_data_qec = xr.concat(list_data_qec, dim="shot")
-    full_data_qec["shot"] = range(len(full_data_qec.shot))
+    full_data_qec = xr.merge(list_data_qec)
 
     new_data_dir = DATA_DIR / COMB_NAME / new_config_data["data"].format(**element)
     new_data_dir.mkdir(parents=True, exist_ok=True)
     full_data_qec.to_netcdf(new_data_dir / "iq_data.nc")
 
-    full_data_cal = xr.concat(list_data_cal, dim="shot")
-    full_data_cal["shot"] = range(len(full_data_cal.shot))
+    full_data_cal = xr.merge(list_data_cal)
 
     new_data_dir = (
         DATA_DIR / COMB_NAME / new_config_data["readout_calibration"].format(**element)
