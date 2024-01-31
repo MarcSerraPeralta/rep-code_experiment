@@ -51,7 +51,9 @@ for exp_name in EXP_NAMES[1:]:
 new_config_data = deepcopy(config_data)
 new_config_data["string_data_options"]["state"] = list_states
 new_config_data["config"] = new_config_data["config"].replace("_s{state}", "")
-new_config_data["readout_calibration"] = new_config_data["readout_calibration"].replace("_s{state}", "")
+new_config_data["readout_calibration"] = new_config_data["readout_calibration"].replace(
+    "_s{state}", ""
+)
 config_data["string_data_options"].pop("state")
 
 (DATA_DIR / COMB_NAME).mkdir(parents=True, exist_ok=True)
@@ -61,7 +63,10 @@ with open(DATA_DIR / COMB_NAME / "config_data.yaml", "w") as file:
 print("\n", end="")  # for printing purposes
 
 for element in sequence_generator(config_data["string_data_options"]):
-    print(f"\033[F\033[K{new_config_data['data'].format(**element, state=list_states[0])}", flush=True)
+    print(
+        f"\033[F\033[K{new_config_data['data'].format(**element, state=list_states[0])}",
+        flush=True,
+    )
 
     config_dir = (
         DATA_DIR
@@ -83,8 +88,11 @@ for element in sequence_generator(config_data["string_data_options"]):
 
     # combine readout data and create folder for each state
     list_data_cal = []
+    num_shots_cal = 0
     for state, exp_name in zip(list_states, EXP_NAMES):
-        data_dir = DATA_DIR / exp_name / config_data["data"].format(**element, state=state)
+        data_dir = (
+            DATA_DIR / exp_name / config_data["data"].format(**element, state=state)
+        )
         new_data_dir = (
             DATA_DIR
             / COMB_NAME
@@ -96,13 +104,16 @@ for element in sequence_generator(config_data["string_data_options"]):
         data.to_netcdf(new_data_dir / "iq_data.nc")
 
         data_dir = (
-            DATA_DIR / exp_name / config_data["readout_calibration"].format(**element, state=state)
+            DATA_DIR
+            / exp_name
+            / config_data["readout_calibration"].format(**element, state=state)
         )
         data = xr.load_dataset(data_dir / "readout_calibration_iq.nc")
+        data["shot"] = data["shot"] + num_shots_cal
+        num_shots_cal += len(data.shot)
         list_data_cal.append(data)
 
-    full_data_cal = xr.concat(list_data_cal, dim="shot")
-    full_data_cal["shot"] = range(len(full_data_cal.shot))
+    full_data_cal = xr.merge(list_data_cal)
 
     new_data_dir = (
         DATA_DIR / COMB_NAME / new_config_data["readout_calibration"].format(**element)
