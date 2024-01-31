@@ -51,7 +51,9 @@ for num_rounds in sequence_generator({"num_rounds": NUM_ROUNDS}):
         log_errors = xr.load_dataarray(data_dir / f"{LOG_ERR_NAME}.nc")
 
         # flatten the log_errors because they make have dimensions (e.g. state)
-        list_log_errors[num_rounds["num_rounds"]] += log_errors.values.flatten().tolist()
+        list_log_errors[
+            num_rounds["num_rounds"]
+        ] += log_errors.values.flatten().tolist()
 
         print(
             f"\033[F\033[K{data_dir} p_L={np.average(log_errors):0.3f}",
@@ -72,7 +74,7 @@ plot_fidelity_fit(
     r0.nominal_value,
     distance,
     color="black",
-    label=f"(estimated) err_rate = {error_rate*100}%",
+    label=f"Fit err_rate = {error_rate*100}%",
     linestyle="--",
 )
 plot_fidelity_exp(
@@ -82,11 +84,39 @@ plot_fidelity_exp(
     color="red",
     linestyle="",
     fmt=".",
-    label="estimated",
+    label="Exp",
 )
 
 ax.legend(loc="upper right")
 fig.tight_layout()
 fig.savefig(DATA_DIR / EXP_NAME / f"{LOG_ERR_NAME}.pdf", format="pdf")
 
-plt.show()
+plt.close()
+
+fig, ax = plt.subplots()
+
+plot_error_prob_fit(
+    ax,
+    NUM_ROUNDS,
+    error_rate.nominal_value,
+    r0.nominal_value,
+    distance,
+    color="black",
+    label=f"Fit err_rate = {error_rate*100}%",
+    linestyle="--",
+)
+plot_error_prob_exp(
+    ax,
+    NUM_ROUNDS,
+    list_log_errors,
+    color="red",
+    linestyle="",
+    fmt=".",
+    label="Exp",
+)
+
+ax.legend(loc="upper right")
+fig.tight_layout()
+fig.savefig(DATA_DIR / EXP_NAME / f"{LOG_ERR_NAME}_log-scale.pdf", format="pdf")
+
+plt.close()
