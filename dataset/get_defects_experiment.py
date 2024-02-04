@@ -16,7 +16,8 @@ DATA_DIR = pathlib.Path(
 )
 
 EXP_NAME = "20230119_initial_data_d3_s010_combined"
-
+IQ_DATA_NAME = "iq_data"
+DEFECTS_NAME = "defects"  # will include the classifier name
 CLASSIFIER = DecayLinearClassifierFit
 
 ###############################
@@ -46,7 +47,7 @@ for element in sequence_generator(STRING_DATA):
     classifiers = {q: CLASSIFIER().load(cla_params[q]) for q in layout.get_qubits()}
 
     # process data
-    dataset = xr.load_dataset(data_dir / "iq_data.nc")
+    dataset = xr.load_dataset(data_dir / f"{IQ_DATA_NAME}.nc")
 
     # digitize measurements
     anc_meas, data_meas, heralded_init = get_measurements(dataset, classifiers)
@@ -72,7 +73,7 @@ for element in sequence_generator(STRING_DATA):
         },
         attrs=dict(ps_fraction=ps_fraction),
     )
-    ds.to_netcdf(data_dir / f"defects_{cla_name}.nc")
+    ds.to_netcdf(data_dir / f"{DEFECTS_NAME}_{cla_name}.nc")
 
     num_rounds = element["num_rounds"]
     print("\033[F\033[K" * 4, end="", flush=True)
