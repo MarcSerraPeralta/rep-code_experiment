@@ -60,7 +60,7 @@ num_anc = len(layout.get_qubits(role="anc"))
 leakage = config.dataset.get("leakage")
 
 rec_features = num_anc
-eval_features = num_data
+eval_features = num_anc
 
 if config.dataset["input"] == "experimental_data":
     if leakage["anc"]:

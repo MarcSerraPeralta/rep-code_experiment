@@ -103,7 +103,7 @@ def get_state_probs_IQ(
         outcomes = dataset.data_meas.sel(data_qubit=qubit)
         # DecayClassifier does not have "pdf_0"
         probs = xr.apply_ufunc(
-            lambda x: cla.pdf_0_projected(cla.project(x)),
+            lambda x: cla.pdf_1_projected(cla.project(x)),
             outcomes,
             input_core_dims=[["iq"]],
             output_dtypes=[float],
@@ -133,7 +133,7 @@ def get_state_probs_IQ(
         outcomes = dataset.anc_meas.sel(anc_qubit=qubit)
         # DecayClassifier does not have "pdf_0"
         probs = xr.apply_ufunc(
-            lambda x: cla.pdf_0_projected(cla.project(x)),
+            lambda x: cla.pdf_1_projected(cla.project(x)),
             outcomes,
             input_core_dims=[["iq"]],
             output_dtypes=[float],
