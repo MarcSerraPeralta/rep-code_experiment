@@ -7,7 +7,7 @@ import xarray as xr
 from qec_util import Layout
 from iq_readout.two_state_classifiers import *
 from qrennd.configs import Config
-from qrennd.dataset.sequences import RaggedSequence
+from qrennd.datasets.sequences import RaggedSequence
 
 from .processing import to_defects_from_iq
 
