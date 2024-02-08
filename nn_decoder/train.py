@@ -11,7 +11,7 @@ from rep_code.dataset import load_nn_dataset
 
 
 # Parameters
-LAYOUT_FILE = "layout.yaml"
+LAYOUT_FILE = "rep_code_layout.yaml"
 CONFIG_FILE = "fist_try_config.yaml"
 
 USERNAME = os.environ.get("USER")
