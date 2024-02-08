@@ -11,8 +11,8 @@ from rep_code.nn_decoder import load_nn_dataset
 
 
 # Parameters
-LAYOUT_FILE = "rep_code_layout.yaml"
-CONFIG_FILE = "fist_try_config.yaml"
+LAYOUT_FILE = "layout.yaml"
+CONFIG_FILE = "first_try_config.yaml"
 
 USERNAME = os.environ.get("USER")
 SCRATH_DIR = pathlib.Path(f"/scratch/{USERNAME}")
@@ -43,7 +43,7 @@ layout = Layout.from_yaml(LAYOUT_DIR / LAYOUT_FILE)
 
 # set random seed for tensorflow, numpy and python
 if config.seed is None:
-    config.seed = np.random.randint(1e15)
+    config.seed = np.random.randint(2**32 - 1)
 random.seed(config.seed)
 np.random.seed(config.seed)
 tf.random.set_seed(config.seed)

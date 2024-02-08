@@ -2,6 +2,7 @@ from typing import Generator, List
 
 import pathlib
 
+import numpy as np
 import xarray as xr
 
 from qec_util import Layout
@@ -25,7 +26,7 @@ def load_nn_dataset(
     rot_basis = config.dataset["rot_basis"]
     basis = "X" if rot_basis else "Z"
 
-    dataset_dir = config.experiment_dir / dataset_name
+    dataset_dir = config.experiment_dir
     dataset_params = config.dataset[dataset_name]
 
     dataset_gen = dataset_generator(
@@ -90,7 +91,7 @@ def get_classifiers(classifier_name, path_to_params):
 
 
 def dataset_generator(
-    datasets_dir: pathlib.Path,
+    dataset_dir: pathlib.Path,
     dataset_name: str,
     experiment_name: str,
     basis: str,
@@ -107,6 +108,6 @@ def dataset_generator(
                 **args,
             )
             dataset = xr.open_dataset(
-                datasets_dir / experiment / f"iq_data_{dataset_name}.nc"
+                dataset_dir / experiment / f"iq_data_{dataset_name}.nc"
             )
             yield dataset

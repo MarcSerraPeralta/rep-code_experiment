@@ -80,7 +80,7 @@ def to_defect_probs_leakage_IQ(
 
 
 def get_state_probs_IQ(
-    datset: xr.Dataset, classifiers: dict
+    dataset: xr.Dataset, classifiers: dict
 ) -> Tuple[xr.DataArray, xr.DataArray]:
     # data qubits
     probs_0_list = []
