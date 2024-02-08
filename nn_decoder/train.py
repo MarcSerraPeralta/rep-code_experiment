@@ -1,5 +1,4 @@
-# %%
-# Module import
+print("Importing libraries...")
 import os
 import pathlib
 import random
@@ -24,6 +23,8 @@ OUTPUT_DIR = (
 )
 
 #########################
+
+print("Running script...")
 
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
@@ -51,7 +52,7 @@ config.to_yaml(config.run_dir / "config.yaml")
 
 # load datasets
 train_data = load_nn_dataset(config=config, layout=layout, dataset_name="train")
-val_data = load_nn_dataset(config=config, layout=layout, dataset_name="dev")
+val_data = load_nn_dataset(config=config, layout=layout, dataset_name="val")
 
 # input features
 anc_qubits = layout.get_qubits(role="anc")

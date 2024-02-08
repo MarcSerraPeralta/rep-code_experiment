@@ -1,0 +1,91 @@
+dataset:
+  val:
+    rounds: !range [1, 61, 1]
+    shots: null
+    states:
+    - '010'
+    - '101'
+    data_qubits: '547'
+    distance: 3
+  folder_format_name: rep-code_d{distance}_s{state}_q{data_qubits}_b{basis}_r{num_rounds}
+  input: experimental_data
+  rot_basis: false
+  classifier: DecayLinearClassifierFit
+  leakage:
+    data: false
+    anc: true
+  digitization:
+    data: true
+    anc: false
+  test:
+    rounds: !range [1, 61, 1]
+    shots: 5000
+    states:
+    - '010'
+    - '101'
+    data_qubits: '547'
+    distance: 3
+  train:
+    rounds: !range [1, 61, 1]
+    shots: null
+    states:
+    - '010'
+    - '101'
+    data_qubits: '547'
+    distance: 3
+metadata:
+  experiment: 20230119_initial_data_d3
+  init_weights: null
+  run: 20230715-113946_lstm16x2_eval16_b256_dr0-05_lr0-002
+  seed: null
+model:
+  LSTM:
+    dropout_rates:
+    - null
+    - 0.05
+    units:
+    - 16
+    - 16
+  aux_eval:
+    dropout_rates:
+    - 0.05
+    - null
+    l2_factor: null
+    units:
+    - 16
+    - 1
+  main_eval:
+    dropout_rates:
+    - 0.05
+    - null
+    l2_factor: null
+    units:
+    - 16
+    - 1
+  type: LSTM
+train:
+  batch_size: 256
+  callbacks:
+    checkpoint:
+      mode: min
+      monitor: val_loss
+      save_best_only: true
+    csv_log:
+      append: false
+    early_stop:
+      min_delta: 0
+      mode: min
+      monitor: val_loss
+      patience: 50
+  epochs: 500
+  loss:
+    aux_output: binary_crossentropy
+    main_output: binary_crossentropy
+  loss_weights:
+    aux_output: 0.5
+    main_output: 1.0
+  metrics:
+    aux_output: accuracy
+    main_output: accuracy
+  optimizer:
+    learning_rate: 0.002
