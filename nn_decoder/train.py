@@ -7,7 +7,7 @@ import numpy as np
 import tensorflow as tf
 
 from qrennd import Config, Layout, get_callbacks, get_model, set_coords
-from rep_code.dataset import load_nn_dataset
+from rep_code.nn_decoder import load_nn_dataset
 
 
 # Parameters
@@ -55,19 +55,20 @@ train_data = load_nn_dataset(config=config, layout=layout, dataset_name="train")
 val_data = load_nn_dataset(config=config, layout=layout, dataset_name="val")
 
 # input features
-anc_qubits = layout.get_qubits(role="anc")
-num_anc = len(anc_qubits)
+num_data = len(layout.get_qubits(role="data"))
+num_anc = len(layout.get_qubits(role="anc"))
+leakage = config.dataset.get("leakage")
 
-if config.model["type"] in ("ConvLSTM", "Conv_LSTM"):
-    rec_features = (layout.distance + 1, layout.distance + 1, 1)
-else:
-    rec_features = num_anc
+rec_features = num_anc
+eval_features = num_data
 
-if config.dataset["input"] == "measurements":
-    data_qubits = layout.get_qubits(role="data")
-    eval_features = len(data_qubits)
+if config.dataset["input"] == "experimental_data":
+    if leakage["anc"]:
+        rec_features += num_anc
+    if leakage["data"]:
+        eval_features += num_data
 else:
-    eval_features = int(num_anc / 2)
+    raise ValueError(f"config.dataset.input is not correct: {config.dataset['input']}")
 
 
 model = get_model(

@@ -1,7 +1,21 @@
+from typing import Optional, Tuple
+
+import xarray as xr
+
+from qrennd.datasets.preprocessing import (
+    get_syndromes,
+    get_defects,
+    get_defect_probs,
+    get_final_defects,
+    get_final_defect_probs,
+)
+
+
 def to_defect_probs_leakage_IQ(
     dataset: xr.Dataset,
     proj_mat: xr.DataArray,
-    digitization: Optional[dict] = {"data": False, "anc": False},
+    classifiers: dict,
+    digitization: Optional[dict] = {"data": True, "anc": True},
     leakage: Optional[dict] = {"data": False, "anc": False},
 ):
     """
@@ -24,7 +38,7 @@ def to_defect_probs_leakage_IQ(
     digitization
         Flag for digitizing the defect probability
     """
-    anc_probs, data_probs = get_state_probs_IQ(dataset)
+    anc_probs, data_probs = get_state_probs_IQ(dataset, classifiers)
 
     ideal_syndromes = get_syndromes(dataset.ideal_anc_meas)
     ideal_defects = get_defects(ideal_syndromes)
@@ -63,3 +77,55 @@ def to_defect_probs_leakage_IQ(
         eval_inputs,
         log_errors,
     )
+
+
+def get_state_probs_IQ(
+    datset: xr.Dataset, classifiers: dict
+) -> Tuple[xr.DataArray, xr.DataArray]:
+    # data qubits
+    probs_0_list = []
+    for qubit in dataset.data_qubit:
+        cla = classifiers[qubit.values.item()]
+        outcomes = dataset.data_meas.sel(data_qubit=qubit).transpose(..., "iq")
+        # DecayClassifier does not have "pdf_0"
+        probs = cla.pdf_0_projected(cla.project(outcomes))
+        probs_0_list.append(probs)
+    probs_0_list = xr.concat(probs_0_list, dim="data_qubit")
+
+    probs_1_list = []
+    for qubit in dataset.data_qubit:
+        cla = classifiers[qubit.values.item()]
+        outcomes = dataset.data_meas.sel(data_qubit=qubit)
+        # DecayClassifier does not have "pdf_0"
+        probs = cla.pdf_1_projected(cla.project(outcomes))
+        probs_1_list.append(probs)
+    probs_1_list = xr.concat(probs_1_list, dim="data_qubit")
+    data_probs = xr.concat([probs_0_list, probs_1_list], dim="state")
+
+    # ancilla qubits
+    probs_0_list = []
+    for qubit in dataset.anc_qubit:
+        cla = classifiers[qubit.values.item()]
+        outcomes = dataset.anc_meas.sel(anc_qubit=qubit)
+        # DecayClassifier does not have "pdf_0"
+        probs = cla.pdf_0_projected(cla.project(outcomes))
+        probs_0_list.append(probs)
+    probs_0_list = xr.concat(probs_0_list, dim="anc_qubit")
+
+    probs_1_list = []
+    for qubit in dataset.anc_qubit:
+        cla = classifiers[qubit.values.item()]
+        outcomes = dataset.anc_meas.sel(anc_qubit=qubit)
+        # DecayClassifier does not have "pdf_0"
+        probs = cla.pdf_1_projected(cla.project(outcomes))
+        probs_1_list.append(probs)
+    probs_1_list = xr.concat(probs_1_list, dim="anc_qubit")
+    anc_probs = xr.concat([probs_0_list, probs_1_list], dim="state")
+
+    anc_probs = anc_probs / anc_probs.sum(dim="state")
+    data_probs = data_probs / data_probs.sum(dim="state")
+
+    anc_probs = anc_probs.transpose("state", "shot", "qec_round", "anc_qubit")
+    data_probs = data_probs.transpose("state", "shot", "data_qubit")
+
+    return anc_probs, data_probs

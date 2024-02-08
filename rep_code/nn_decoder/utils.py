@@ -8,8 +8,9 @@ from qec_util import Layout
 from iq_readout.two_state_classifiers import *
 from qrennd.configs import Config
 from qrennd.datasets.sequences import RaggedSequence
+from qrennd.datasets.preprocessing import to_model_input
 
-from .processing import to_defects_from_iq
+from .processing import to_defect_probs_leakage_IQ
 
 
 def load_nn_dataset(
@@ -45,7 +46,7 @@ def load_nn_dataset(
             config.dataset["classifier"], config.experiment_dir / "readout_calibration"
         )
         processed_gen = (
-            to_defects_from_iq(
+            to_defect_probs_leakage_IQ(
                 dataset,
                 proj_mat=proj_matrix,
                 classifiers=classifiers,
