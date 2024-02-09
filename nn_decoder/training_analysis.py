@@ -7,8 +7,8 @@ from matplotlib import pyplot as plt
 from rep_code.nn_decoder import load_nn_dataset
 
 # %%
-EXP_NAME = "20240119_initial_data_d3"
-MODEL_FOLDER = "20240209-105650_lstm16x2_eval16_b256_dr0-05_lr0-002"
+EXP_NAME = "20240119_initial_data_d5"
+MODEL_FOLDER = "20240209-133546_lstm16x2_eval16_b256_dr0-05_lr0-002"
 LAYOUT_NAME = "layout.yaml"
 TEST_DATASET = ["test"]
 
@@ -88,6 +88,7 @@ def evaluate_model(model, config, layout, dataset_name="test"):
     sequences = product(rounds, states)
     list_errors = []
 
+    print("")
     for data, (num_rounds, state) in zip(test_data, sequences):
         prediction = model.predict(data, verbose=0)
         prediction = (prediction[0] > 0.5).flatten()
@@ -96,7 +97,6 @@ def evaluate_model(model, config, layout, dataset_name="test"):
 
         print(
             f"\033[F\033[KQEC = {num_rounds} | state = {state} | avg_errors = {np.average(errors):.4f}",
-            end="",
             flush=True,
         )
 
