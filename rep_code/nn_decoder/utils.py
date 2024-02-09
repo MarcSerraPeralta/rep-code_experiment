@@ -1,4 +1,4 @@
-from typing import Generator, List
+from typing import Generator, List, Optional
 
 import pathlib
 
@@ -8,7 +8,7 @@ import xarray as xr
 from qec_util import Layout
 from iq_readout.two_state_classifiers import *
 from qrennd.configs import Config
-from qrennd.datasets.sequences import RaggedSequence
+from qrennd.datasets.sequences import RaggedSequence, Sequence
 from qrennd.datasets.preprocessing import to_model_input
 
 from .processing import to_defect_probs_leakage_IQ
@@ -18,6 +18,7 @@ def load_nn_dataset(
     config: Config,
     layout: Layout,
     dataset_name: str,
+    concat: Optional[bool] = True,
 ):
     batch_size = config.train["batch_size"]
     model_type = config.model["type"]
@@ -68,7 +69,11 @@ def load_nn_dataset(
     data_type = float if input_type == "prob_defects" else bool
     input_gen = (to_model_input(*arrs, exp_matrix, data_type) for arrs in processed_gen)
 
-    return RaggedSequence.from_generator(input_gen, batch_size, False)
+    if concat:
+        return RaggedSequence.from_generator(input_gen, batch_size, False)
+
+    sequences = (Sequence(*tensors, batch_size, False) for tensors in input_gen)
+    return sequences
 
 
 def get_classifiers(classifier_name, path_to_params):

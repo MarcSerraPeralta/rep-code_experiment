@@ -1,0 +1,1 @@
+rsync -av --include='*_test.nc' --exclude='*.nc' marcserraperal@login.delftblue.tudelft.nl:/scratch/marcserraperal/projects/20231220-repetition_code_dicarlo_lab/nn_data/ ./data/

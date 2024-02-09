@@ -6,7 +6,7 @@ import random
 import numpy as np
 import tensorflow as tf
 
-from qrennd import Config, Layout, get_callbacks, get_model, set_coords
+from qrennd import Config, Layout, get_callbacks, get_model
 from rep_code.nn_decoder import load_nn_dataset
 
 
