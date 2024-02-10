@@ -107,7 +107,9 @@ def plot_fidelity_exp(
     log_errors: np.ndarray(Nrounds, Nshots)
     """
     log_fid = np.array([np.average(fidelity(x)) for x in log_errors])
-    log_fid_std = np.array([np.std(fidelity(x)) / np.sqrt(len(x)) for x in log_errors])
+    log_fid_std = np.array(
+        [np.std(fidelity(x)) / np.sqrt(len(x.flatten())) for x in log_errors]
+    )
 
     ax.errorbar(rounds, log_fid, yerr=log_fid_std, **kargs_errorbar)
 
@@ -151,7 +153,9 @@ def plot_error_prob_exp(
     log_errors: np.ndarray(Nrounds, Nshots)
     """
     error_prob = np.array([np.average(x) for x in log_errors])
-    error_prob_std = np.array([np.std(x) / np.sqrt(len(x)) for x in log_errors])
+    error_prob_std = np.array(
+        [np.std(x) / np.sqrt(len(x.flatten())) for x in log_errors]
+    )
 
     ax.errorbar(rounds, 1 - 2 * error_prob, yerr=error_prob_std, **kargs_errorbar)
 

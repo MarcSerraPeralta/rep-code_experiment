@@ -11,10 +11,17 @@ from lmfit import Model
 
 from qrennd.utils.analysis import lmfit_par_to_ufloat
 
+from rep_code.decoding import (
+    plot_fidelity_exp,
+    plot_fidelity_fit,
+    get_error_rate,
+    plot_error_prob_fit,
+    plot_error_prob_exp,
+)
 
 # %%
-EXP_NAME = "20240119_initial_data_d3"
-MODEL_FOLDER = "20240209-105650_lstm16x2_eval16_b256_dr0-05_lr0-002"
+EXP_NAME = "20240119_initial_data_d5"
+MODEL_FOLDER = "20240209-170544_lstm64x2_eval64_b256_dr0-05_lr0-001"
 DATASET = "test.nc"
 
 TITLE = f"{EXP_NAME}\n{MODEL_FOLDER} ({DATASET})"
@@ -25,6 +32,11 @@ FIT = True
 
 # %%
 DIR = pathlib.Path.cwd() / "evaluation" / "output"
+DATA_DIR = pathlib.Path.cwd() / "evaluation" / "data"
+
+with open(DATA_DIR / EXP_NAME / "config_data.yaml", "r") as file:
+    config_data = yaml.safe_load(file)
+distance = config_data["string_data_options"]["distance"]
 
 # %%
 fig, ax = plt.subplots(figsize=(7, 5))
@@ -34,78 +46,70 @@ EXP_DIR_ = EXP_NAME
 RUN_DIR_ = MODEL_FOLDER
 COLOR = "blue"
 LABEL_DATA = "NN"
-LABEL_FIT = "$\\epsilon_L$ = ({error_rate_100})%"
 
 log_fid = xr.load_dataset(DIR / EXP_DIR_ / RUN_DIR_ / DATASET)
+num_rounds = log_fid.qec_round.values
+log_errors = log_fid.transpose("qec_round", ...).errors.values
 
-x = log_fid.qec_round.values
-y = 1 - log_fid.errors.mean(dim=["shot", "state"]).values
-y_err = log_fid.errors.std(dim=["shot", "state"]).values / np.sqrt(
-    len(log_fid.shot) * len(log_fid.state)
-)
-
-print(list(y))
-
-if LABEL_DATA:
-    ax.errorbar(
-        x,
-        y,
-        fmt=".",
-        yerr=y_err,
-        color=COLOR,
-        markersize=10,
-        label=LABEL_DATA,
-    )
+fig, ax = plt.subplots()
 
 if FIT:
-
-    def func(qec_round, err_rate=0.1, round_offset=0):
-        return 0.5 * (1 + (1 - 2 * err_rate) ** (qec_round - round_offset))
-
-    log_decay_model = Model(func)
-
-    fit = log_decay_model.fit(y, qec_round=x)
-
-    error_rate = lmfit_par_to_ufloat(fit.params["err_rate"])
-    t0 = lmfit_par_to_ufloat(fit.params["round_offset"])
-
-    x_fit = np.linspace(0, max(x), 100)
-    y_fit = log_decay_model.func(x_fit, error_rate.nominal_value, t0.nominal_value)
-    vars_fit = {
-        "error_rate": error_rate,
-        "t0": t0,
-        "error_rate_100": error_rate * 100,
-    }
-    ax.plot(
-        x_fit,
-        y_fit,
-        linestyle="-",
+    error_rate, r0 = get_error_rate(num_rounds, log_errors, distance, return_r0=True)
+    plot_fidelity_fit(
+        ax,
+        num_rounds,
+        error_rate.nominal_value,
+        r0.nominal_value,
+        distance,
         color=COLOR,
-        label=LABEL_FIT.format(**vars_fit),
+        label=f"$\\epsilon_L$ = {error_rate*100}%",
+        linestyle="-",
     )
 
-
-# %%
-ax.set_xlabel("QEC round")
-ax.set_ylabel("logical fidelity")
-ax.set_xlim(xmin=0)
-# ax.set_yscale("log")
-ax.set_ylim(ymax=1, ymin=0.5)
-ax.set_yticks(
-    np.arange(0.5, 1.01, 0.05), np.round(np.arange(0.5, 1.01, 0.05), decimals=2)
+plot_fidelity_exp(
+    ax,
+    num_rounds,
+    log_errors,
+    color=COLOR,
+    linestyle="",
+    fmt=".",
+    label=LABEL_DATA,
 )
-ax.legend(loc="best")
-ax.grid(which="major")
-if TITLE:
-    ax.set_title(TITLE)
-fig.tight_layout()
 
-# %%
-for format_ in ["pdf", "png", "svg"]:
-    fig.savefig(
-        DIR / OUTPUT_DIR / (OUTPUT_NAME + f".{format_}"),
-        format=format_,
+ax.legend(loc="upper right")
+fig.tight_layout()
+for format_ in ["svg", "pdf", "png"]:
+    fig.savefig(DIR / OUTPUT_DIR / f"{OUTPUT_NAME}.{format_}", format=format_)
+
+plt.close()
+
+fig, ax = plt.subplots()
+
+if FIT:
+    plot_error_prob_fit(
+        ax,
+        num_rounds,
+        error_rate.nominal_value,
+        r0.nominal_value,
+        distance,
+        color=COLOR,
+        label=f"$\\epsilon_L$ = {error_rate*100}%",
+        linestyle="-",
     )
 
-# %%
-plt.show()
+plot_error_prob_exp(
+    ax,
+    num_rounds,
+    log_errors,
+    color=COLOR,
+    linestyle="",
+    fmt=".",
+    label=LABEL_DATA,
+)
+
+ax.legend(loc="upper right")
+fig.tight_layout()
+for format_ in ["svg", "pdf", "png"]:
+    fig.savefig(DIR / OUTPUT_DIR / f"{OUTPUT_NAME}_log-scale.{format_}", format=format_)
+
+plt.close()
