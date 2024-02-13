@@ -69,7 +69,7 @@ for element in sequence_generator(STRING_DATA):
             defect_counts.sel(anc_qubit=q).values, return_counts=True
         )
         # print(hist, bin_edges, num_rounds)
-        ax.plot(bins, counts, colors[k], label=q, linestyle="none", marker=".")
+        ax.plot(bins, counts, colors[k], label=q, linestyle="-", marker=".")
 
     ax.legend(loc="best")
     ax.set_xlabel("# defects in run")
