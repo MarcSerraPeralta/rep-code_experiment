@@ -72,9 +72,9 @@ for element in sequence_generator(STRING_DATA):
         ax.plot(bins, counts, colors[k], label=q, linestyle="-", marker=".")
 
     ax.legend(loc="best")
-    ax.set_xlabel("# defects in run")
-    ax.set_ylabel("# runs")
-    ax.set_xlim(np.min(num_rounds) - 1.5, np.max(num_rounds) + 0.5)
+    ax.set_xlabel("number of triggered defects in a run")
+    ax.set_ylabel("number of runs")
+    ax.set_xlim(0, np.max(num_rounds) + 1)
     ax.xaxis.set_major_locator(MaxNLocator(integer=True))
     ax.set_ylim(ymin=0)
 
