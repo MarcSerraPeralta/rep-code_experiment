@@ -56,8 +56,14 @@ for element in sequence_generator(STRING_DATA):
         classifier = CLASSIFIER().fit(shots_0, shots_1)
         calibration_params_no_ps[qubit_name] = classifier.params()
 
+        # compute p(0|0) and p(1|1)
+        p_m0_s0 = np.average(classifier.predict(shots_0, p0=P0) != 0)
+        p_m1_s1 = np.average(classifier.predict(shots_1, p0=P0) != 1)
+
         # plot readout calibration without PS
         fig, ax = plt.subplots()
+        ax.plot([], [], color="white", label=f"p(0|0) = {p_m0_s0:0.5f}")
+        ax.plot([], [], color="white", label=f"p(1|1) = {p_m1_s1:0.5f}")
         ax = plot_pdfs_projected(ax, shots_0, shots_1, classifier)
         fig.tight_layout()
         for format_ in ["pdf"]:
@@ -86,8 +92,14 @@ for element in sequence_generator(STRING_DATA):
         classifier = CLASSIFIER().fit(shots_0_ps, shots_1_ps)
         calibration_params_ps[qubit_name] = classifier.params()
 
+        # compute p(0|0) and p(1|1)
+        p_m0_s0 = np.average(classifier.predict(shots_0_ps, p0=P0) != 0)
+        p_m1_s1 = np.average(classifier.predict(shots_1_ps, p0=P0) != 1)
+
         # plot readout calibration without PS
         fig, ax = plt.subplots()
+        ax.plot([], [], color="white", label=f"p(0|0) = {p_m0_s0:0.5f}")
+        ax.plot([], [], color="white", label=f"p(1|1) = {p_m1_s1:0.5f}")
         ax = plot_pdfs_projected(ax, shots_0_ps, shots_1_ps, classifier)
         fig.tight_layout()
         for format_ in ["pdf"]:
