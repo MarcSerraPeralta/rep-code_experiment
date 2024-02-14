@@ -1,3 +1,4 @@
+print("Importing libraries...")
 import pathlib
 import os
 import yaml
@@ -19,6 +20,8 @@ EXP_NAME = "20230119_initial_data_d3_s010"
 CLASSIFIER = DecayLinearClassifierFit
 
 #################################
+
+print("Running script...")
 
 cla_name = CLASSIFIER.__name__
 
@@ -58,9 +61,8 @@ for element in sequence_generator(STRING_DATA):
 
         # plot readout calibration
         fig, ax = plt.subplots()
-        ax.plot([], [], color="white", label=f"p(0|0) = {p_m0_s0:0.5f}")
-        ax.plot([], [], color="white", label=f"p(1|1) = {p_m1_s1:0.5f}")
         ax = plot_pdfs_projected(ax, shots_0, shots_1, classifier)
+        ax.set_title(f"p(0|0)={p_m0_s0*100:0.2f}% p(1|1)={p_m1_s1*100:0.2f}%")
         fig.tight_layout()
         for format_ in ["pdf"]:
             fig.savefig(
