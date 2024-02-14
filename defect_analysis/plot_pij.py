@@ -11,6 +11,7 @@ from dem_estimation.plots import plot_pij_matrix
 from qec_util import Layout
 from rep_code.defects import get_defect_vector
 from rep_code.dataset import sequence_generator
+from rep_code.circuits.repetition_code import get_1d_coords
 
 DATA_DIR = pathlib.Path(
     "/scratch/marcserraperal/projects/20231220-repetition_code_dicarlo_lab/data"
@@ -19,7 +20,7 @@ OUTPUT_DIR = pathlib.Path(
     "/scratch/marcserraperal/projects/20231220-repetition_code_dicarlo_lab/defect_analysis"
 )
 
-EXP_NAME = "20230119_initial_data_d3_s010_combined"
+EXP_NAME = "20230119_initial_data_d3"
 
 DEFECTS_NAME = "defects_DecayLinearClassifierFit"
 
@@ -48,12 +49,17 @@ for element in sequence_generator(STRING_DATA):
     defects = defects_xr.defects
     final_defects = defects_xr.final_defects
 
-    # sort defect data into vector with same ordering
-    # as the stim circuit
+    # sort defect data into vector with ordering
+    # that matches the chain that they define
+    coords_dict = get_1d_coords(layout)
+    anc_order = sorted(
+        layout.get_qubits(role="anc"),
+        key=lambda q: coords_dict[q],
+    )
     defect_vec = get_defect_vector(
         defects,
         final_defects,
-        anc_order=layout.get_qubits(role="anc"),
+        anc_order=anc_order,
         dim_first="qec_round",
     )
 
@@ -65,10 +71,10 @@ for element in sequence_generator(STRING_DATA):
     plot_pij_matrix(
         ax=ax,
         pij=pij,
-        qubit_labels=layout.get_qubits(role="anc"),
+        qubit_labels=anc_order,
         num_rounds=element["num_rounds"] + 1,
     )
 
     fig.tight_layout()
-    fig.savefig(output_dir / f"pij_{DEFECTS_NAME}.pdf", format="pdf")
+    fig.savefig(output_dir / f"{DEFECTS_NAME}_pij.pdf", format="pdf")
     plt.close()
