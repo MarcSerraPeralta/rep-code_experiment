@@ -92,8 +92,8 @@ for element in sequence_generator(STRING_DATA):
         calibration_params_ps[qubit_name] = classifier.params()
 
         # compute p(0|0) and p(1|1)
-        p_m0_s0 = np.average(classifier.predict(shots_0_ps, p0=P0) != 0)
-        p_m1_s1 = np.average(classifier.predict(shots_1_ps, p0=P0) != 1)
+        p_m0_s0 = np.average(classifier.predict(shots_0_ps, p0=P0) == 0)
+        p_m1_s1 = np.average(classifier.predict(shots_1_ps, p0=P0) == 1)
 
         # plot readout calibration without PS
         fig, ax = plt.subplots()
