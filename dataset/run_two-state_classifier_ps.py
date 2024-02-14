@@ -15,9 +15,9 @@ DATA_DIR = pathlib.Path(
     "/scratch/marcserraperal/projects/20231220-repetition_code_dicarlo_lab/data"
 )
 
-EXP_NAME = "20230119_initial_data_d3_s101_combined"
+EXP_NAME = "20230119_initial_data_d5"
 
-CLASSIFIER = TwoStateLinearClassifierFit
+CLASSIFIER = DecayLinearClassifierFit
 
 P0 = 0.5  # probability of the qubit being in state 0
 
@@ -62,9 +62,8 @@ for element in sequence_generator(STRING_DATA):
 
         # plot readout calibration without PS
         fig, ax = plt.subplots()
-        ax.plot([], [], color="white", label=f"p(0|0) = {p_m0_s0:0.5f}")
-        ax.plot([], [], color="white", label=f"p(1|1) = {p_m1_s1:0.5f}")
         ax = plot_pdfs_projected(ax, shots_0, shots_1, classifier)
+        ax.set_title(f"p(0|0)={p_m0_s0*100:0.2f}% p(1|1)={p_m1_s1*100:0.2f}%")
         fig.tight_layout()
         for format_ in ["pdf"]:
             fig.savefig(
@@ -98,9 +97,8 @@ for element in sequence_generator(STRING_DATA):
 
         # plot readout calibration without PS
         fig, ax = plt.subplots()
-        ax.plot([], [], color="white", label=f"p(0|0) = {p_m0_s0:0.5f}")
-        ax.plot([], [], color="white", label=f"p(1|1) = {p_m1_s1:0.5f}")
         ax = plot_pdfs_projected(ax, shots_0_ps, shots_1_ps, classifier)
+        ax.set_title(f"p(0|0)={p_m0_s0*100:0.2f}% p(1|1)={p_m1_s1*100:0.2f}%")
         fig.tight_layout()
         for format_ in ["pdf"]:
             fig.savefig(
