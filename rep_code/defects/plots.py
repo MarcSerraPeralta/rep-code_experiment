@@ -27,6 +27,7 @@ def plot_average_defect_rate(
     ax.set_xlabel("QEC round, $r$")
     ax.set_ylabel("Defect rate")
     ax.set_xlim(0, qec_round[-1] + 1)
+    ax.set_ylim(ymin=0)
 
     return ax
 
@@ -60,6 +61,7 @@ def plot_defect_rates(
     ax.set_xlabel("QEC round, $r$")
     ax.set_ylabel("Defect rate")
     ax.set_xlim(0, qec_round[-1] + 1)
+    ax.set_ylim(ymin=0)
     ax.legend(loc="lower center")
 
     return ax

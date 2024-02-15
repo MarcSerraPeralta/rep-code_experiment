@@ -79,6 +79,8 @@ for element in sequence_generator(STRING_DATA):
         plot_average_defect_rate(ax, defects, final_defects)
         plot_defect_rates(ax, defects, final_defects, **kargs_plot)
 
+        ax.set_ylim(0, 0.3)
+
         fig.tight_layout()
         fig.savefig(output_dir / f"{DEFECTS_NAME}_rates_s{state}.pdf", format="pdf")
 
@@ -99,6 +101,8 @@ for element in sequence_generator(STRING_DATA):
 
     plot_average_defect_rate(ax, defects_combined, final_defects_combined)
     plot_defect_rates(ax, defects_combined, final_defects_combined, **kargs_plot)
+
+    ax.set_ylim(0, 0.3)
 
     fig.tight_layout()
     fig.savefig(output_dir / f"{DEFECTS_NAME}_rates_combined.pdf", format="pdf")
