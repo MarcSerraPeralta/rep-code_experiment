@@ -57,7 +57,7 @@ for element in sequence_generator(STRING_DATA):
 
         # plot readout calibration without PS
         fig = summary(classifier, shots_0, shots_1, shots_2)
-        for format_ in ["pdf"]:
+        for format_ in ["pdf", "png"]:
             fig.savefig(
                 cal_dir / f"{cla_name}_{qubit_name}_no-ps.{format_}",
                 format=format_,
