@@ -8,7 +8,6 @@ import xarray as xr
 import matplotlib.pyplot as plt
 
 from iq_readout.two_state_classifiers import *
-from iq_readout.three_state_classifiers import *
 from iq_readout.plots import plot_pdfs_projected
 from rep_code.dataset import sequence_generator
 
@@ -18,7 +17,7 @@ DATA_DIR = pathlib.Path(
 
 EXP_NAME = "20230119_initial_data_d5"
 
-CLASSIFIER = ThreeStateClassifier2D
+CLASSIFIER = DecayLinearClassifierFit
 
 P0 = 0.5  # probability of the qubit being in state 0
 
