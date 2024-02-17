@@ -59,7 +59,7 @@ for element in sequence_generator(STRING_DATA):
         fig = summary(classifier, shots_0, shots_1)
         for format_ in ["pdf", "png"]:
             fig.savefig(
-                cal_dir / f"{cla_name}_{qubit_name}_no-ps.{format_}",
+                cal_dir / f"2state_{cla_name}_{qubit_name}_no-ps.{format_}",
                 format=format_,
             )
         plt.close()
@@ -88,7 +88,7 @@ for element in sequence_generator(STRING_DATA):
         fig = summary(classifier, shots_0_ps, shots_1_ps)
         for format_ in ["pdf", "png"]:
             fig.savefig(
-                cal_dir / f"{cla_name}_{qubit_name}_ps.{format_}",
+                cal_dir / f"2state_{cla_name}_{qubit_name}_ps.{format_}",
                 format=format_,
             )
         plt.close()
