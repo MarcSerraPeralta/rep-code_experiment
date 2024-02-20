@@ -6,7 +6,7 @@ import numpy as np
 import xarray as xr
 
 from qec_util import Layout
-from iq_readout.two_state_classifiers import *
+from iq_readout import two_state_classifiers, three_state_classifiers
 from qrennd.configs import Config
 from qrennd.datasets.sequences import RaggedSequence, Sequence
 from qrennd.datasets.preprocessing import to_model_input
@@ -44,14 +44,22 @@ def load_nn_dataset(
     if input_type == "experimental_data":
         digitization = config.dataset.get("digitization")
         leakage = config.dataset.get("leakage")
-        classifiers = get_classifiers(
-            config.dataset["classifier"], config.experiment_dir / "readout_calibration"
+        two_state_classifiers = get_classifiers(
+            config.dataset["two_state_classifier"],
+            config.experiment_dir / "readout_calibration",
+            num_states=2,
+        )
+        three_state_classifiers = get_classifiers(
+            config.dataset["three_state_classifier"],
+            config.experiment_dir / "readout_calibration",
+            num_states=3,
         )
         processed_gen = (
             to_defect_probs_leakage_IQ(
                 dataset,
                 proj_mat=proj_matrix,
-                classifiers=classifiers,
+                two_state_classifiers=two_state_classifiers,
+                three_state_classifiers=three_state_classifiers,
                 leakage=leakage,
                 digitization=digitization,
             )
@@ -76,14 +84,25 @@ def load_nn_dataset(
     return sequences
 
 
-def get_classifiers(classifier_name, path_to_params):
-    if classifier_name == "TwoStateLinearClassifierFit":
-        classifier = TwoStateLinearClassifierFit
-    elif classifier_name == "DecayLinearClassifierFit":
-        classifier = DecayLinearClassifierFit
+def get_classifiers(
+    classifier_name: str,
+    path_to_params: pathlib.Path,
+    num_states: int,
+) -> dict:
+    if num_states == 2:
+        module = two_state_classifiers
+    elif num_states == 3:
+        module = three_state_classifiers
+
+    if classifier_name == "GaussMixLinearClassifier":
+        classifier = module.GaussMixLinearClassifier
+    elif classifier_name == "DecayLinearClassifier":
+        classifier = module.DecayLinearClassifier
+    elif classifier_name == "GaussMixClassifier":
+        classifier = module.GaussMixClassifier
     else:
         raise ValueError(
-            "Classifier name must be TwoStateLinearClassifierFit or DecayLinearClassifierFit, "
+            "Classifier name must be GaussMixLinearClassifier, DecayLinearClassifier, or GaussMixClassifier;"
             f"but {classifier_name} was given"
         )
 
@@ -102,7 +121,7 @@ def dataset_generator(
     basis: str,
     states: List[str],
     rounds: List[int],
-    **args,
+    **kargs,
 ) -> Generator:
     for num_rounds in rounds:
         for state in states:
@@ -110,7 +129,7 @@ def dataset_generator(
                 basis=basis,
                 state=state,
                 num_rounds=num_rounds,
-                **args,
+                **kargs,
             )
             dataset = xr.open_dataset(
                 dataset_dir / experiment / f"iq_data_{dataset_name}.nc"
