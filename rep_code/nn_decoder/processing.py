@@ -66,18 +66,18 @@ def to_defect_probs_leakage_IQ(
     rec_inputs, eval_inputs = defect_probs, final_defect_probs
     if leakage["anc"]:
         anc_leak_flag = get_leakage_flag_from_IQ(
-            dataset.anc_meas.rename("anc_qubit", "qubit"),
+            dataset.anc_meas.rename({"anc_qubit": "qubit"}),
             three_state_classifiers,
-        )
-        anc_leak_flag = anc_leak_flag.transpose("state", "shot", "qec_round", "qubit")
-        rec_inputs = [defect_probs, anc_leak_flag]
+        ).rename({"qubit": "anc_qubit"})
+        rec_inputs = xr.concat([defect_probs, anc_leak_flag], dim="anc_qubit")
+        rec_inputs = rec_inputs.transpose("shot", "qec_round", "anc_qubit")
     if leakage["data"]:
         data_leak_flag = get_leakage_flag_from_IQ(
-            dataset.data_meas.rename("data_qubit", "qubit"),
+            dataset.data_meas.rename({"data_qubit": "qubit"}),
             three_state_classifiers,
-        )
-        data_leak_flag = data_leak_flag.transpose("state", "shot", "qubit")
-        eval_inputs = [final_defect_probs, data_leak_flag]
+        ).rename({"qubit": "data_qubit_qubit"})
+        eval_inputs = xr.concat([final_defect_probs, data_leak_flag], dim="data_qubit")
+        eval_inputs = eval_inputs.transpose("shot", "qubit")
 
     return (
         rec_inputs,
@@ -163,9 +163,9 @@ def get_leakage_flag_from_IQ(
     dataarray: xr.DataArray, classifiers: dict
 ) -> Tuple[xr.DataArray, xr.DataArray]:
     leakage_flag = []
-    for qubit in dataarray.data_qubit:
+    for qubit in dataarray.qubit:
         cla = classifiers[qubit.values.item()]
-        outcomes = dataarray.sel(data_qubit=qubit).transpose(..., "iq")
+        outcomes = dataarray.sel(qubit=qubit).transpose(..., "iq")
         flags = xr.apply_ufunc(
             lambda x: cla.predict(x) >= 2,
             outcomes,

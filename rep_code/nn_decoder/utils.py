@@ -107,7 +107,7 @@ def get_classifiers(
         )
 
     cla_params = np.load(
-        path_to_params / f"{classifier_name}_params_ps.npy", allow_pickle=True
+        path_to_params / f"{num_states}state_{classifier_name}_params_ps.npy", allow_pickle=True
     ).item()
     classifiers = {q: classifier().load(p) for q, p in cla_params.items()}
 
