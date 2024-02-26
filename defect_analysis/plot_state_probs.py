@@ -48,7 +48,7 @@ if "readout_calibration" in new_config_data:
 with open(OUTPUT_DIR / EXP_NAME / "config_data.yaml", "w") as file:
     yaml.dump(new_config_data, file, default_flow_style=False)
 
-colors = {
+colors_anc = {
     "Z1": "#1f77b4",
     "Z2": "#ff7f0e",
     "Z3": "#2ca02c",
@@ -57,6 +57,18 @@ colors = {
     "X2": "#8c564b",
     "X3": "#e377c2",
     "X4": "#7f7f7f",
+}
+
+colors_data = {
+    "D1": "#1f77b4",
+    "D2": "#ff7f0e",
+    "D3": "#2ca02c",
+    "D4": "#d62728",
+    "D5": "#9467bd",
+    "D6": "#8c564b",
+    "D7": "#e377c2",
+    "D8": "#7f7f7f",
+    "D9": "hotpink",
 }
 
 print("\n", end="")  # for printing purposes
@@ -101,38 +113,50 @@ for element in sequence_generator(STRING_DATA):
         probs_anc_combined[anc_qubit] /= counts
 
     # plot
-    fig, ax = plt.subplots()
+    fig, (ax0, ax1) = plt.subplots(ncols=2, figsize=(10, 5))
 
     for anc_qubit in anc_qubits:
-        ax.plot(
+        ax0.plot(
             np.arange(1, max(NUM_ROUNDS) + 1),
             probs_anc_combined[anc_qubit],
             label=f"{anc_qubit}",
-            color=colors[anc_qubit],
+            color=colors_anc[anc_qubit],
             linestyle="-",
-            marker=".",
+            marker="none",
         )
 
     for data_qubit in data_qubits:
-        ax.plot(
+        ax1.plot(
             NUM_ROUNDS,
             probs_data_combined[data_qubit],
             label=f"{data_qubit}",
-            # color=colors[anc_qubit],
+            color=colors_data[data_qubit],
             linestyle="--",
-            marker=".",
+            marker="none",
         )
 
-    ax.legend(loc="best")
-    ax.set_xlabel("QEC round (R for data qubits, r for ancilla qubits)")
-    ax.set_ylabel("probability of state 2")
-    ax.set_xlim(0, max(NUM_ROUNDS) + 1)
-    ax.xaxis.set_major_locator(MaxNLocator(integer=True))
-    ax.set_ylim(ymin=0)
+    ax0.legend(loc="best")
+    ax0.set_xlabel("QEC round, r")
+    ax0.set_ylabel("estimated Prob(|2>)")
+    ax0.set_xlim(0, max(NUM_ROUNDS) + 1)
+    ax0.xaxis.set_major_locator(MaxNLocator(integer=True))
+    ax0.set_ylim(ymin=0)
+
+    ax1.legend(loc="best")
+    ax1.set_xlabel("QEC round, R")
+    ax1.set_ylabel("estimated Prob(|2>)")
+    ax1.set_xlim(0, max(NUM_ROUNDS) + 1)
+    ax1.xaxis.set_major_locator(MaxNLocator(integer=True))
+    ax1.set_ylim(ymin=0)
+
+    # common y limits
+    ymax = max(ax0.get_ylim()[1], ax1.get_ylim()[1])
+    ax0.set_ylim(ymax=ymax)
+    ax1.set_ylim(ymax=ymax)
 
     fig.tight_layout()
     fig.savefig(
-        output_dir / f"{PROBS_NAME}_prob_state_2.pdf",
+        output_dir / f"{PROBS_NAME}_prob2.pdf",
         format="pdf",
     )
 

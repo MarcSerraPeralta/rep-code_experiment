@@ -26,7 +26,7 @@ def fit_binomial(k: np.ndarray, pdf: np.ndarray, n: float):
 def get_three_state_probs(
     classifier,
     iq_data: np.ndarray,
-    prob_tol: float = 5e-3,
+    prob_tol: float = 1e-3,
 ) -> Tuple[float, float, float]:
     """Estimates the probability of state 0, 1, 2 given
     the measured IQ values iteratively:
