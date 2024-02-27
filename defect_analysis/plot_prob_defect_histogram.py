@@ -20,7 +20,7 @@ OUTPUT_DIR = pathlib.Path(
     "/scratch/marcserraperal/projects/20231220-repetition_code_dicarlo_lab/defect_analysis"
 )
 
-EXP_NAME = "20230119_initial_data_d5"
+EXP_NAME = "20230119_initial_data_d3"
 
 IQ_DATA_NAME = "iq_data"
 CLASSIFIER = GaussMixLinearClassifier
@@ -126,11 +126,11 @@ for element in sequence_generator(STRING_DATA):
             prob_defects[anc_qubit] += counts
 
     # plot the results
-    fig, ax = plt.subplots()
+    fig, (ax0, ax1) = plt.subplots(ncols=2, figsize=(10, 5))
     bin_centers = 0.5 * (BINS[:-1] + BINS[1:])
 
     for anc_qubit in anc_qubits:
-        ax.plot(
+        ax0.plot(
             bin_centers,
             prob_defects[anc_qubit],
             label=f"{anc_qubit}",
@@ -139,21 +139,49 @@ for element in sequence_generator(STRING_DATA):
             marker=".",
         )
 
-    prob_defects = np.sum([prob_defects[q] for q in anc_qubits], axis=0)
-    ax.plot(
+    prob_defects_all = np.sum([prob_defects[q] for q in anc_qubits], axis=0)
+    ax0.plot(
         bin_centers,
-        prob_defects,
+        prob_defects_all,
         label=f"all",
         color="black",
         linestyle="-",
         marker=".",
     )
 
-    ax.legend(loc="best")
-    ax.set_xlabel("defect probability")
-    ax.set_ylabel("# counts")
-    ax.set_xlim(0, 1)
-    ax.set_yscale("log")
+    ax0.legend(loc="best")
+    ax0.set_xlabel("defect probability")
+    ax0.set_ylabel("# counts")
+    ax0.set_xlim(0, 1)
+    ax0.set_yscale("log")
+
+    for anc_qubit in anc_qubits:
+        cum_sum = np.cumsum(prob_defects[anc_qubit])
+        ax1.plot(
+            bin_centers,
+            cum_sum / cum_sum[-1],
+            label=f"{anc_qubit}",
+            color=colors[anc_qubit],
+            linestyle="-",
+            marker=".",
+        )
+
+    prob_defects_all = np.sum([prob_defects[q] for q in anc_qubits], axis=0)
+    cum_sum = np.cumsum(prob_defects_all)
+    ax1.plot(
+        bin_centers,
+        cum_sum / cum_sum[-1],
+        label=f"all",
+        color="black",
+        linestyle="-",
+        marker=".",
+    )
+
+    ax1.legend(loc="best")
+    ax1.set_xlabel("defect probability")
+    ax1.set_ylabel("cumulative distribution")
+    ax1.set_xlim(0, 1)
+    ax1.set_ylim(0, 1)
 
     fig.tight_layout()
     fig.savefig(
