@@ -83,8 +83,12 @@ for element in sequence_generator(STRING_DATA):
     data_qubits = layout.get_qubits(role="data")
     anc_qubits = layout.get_qubits(role="anc")
 
-    probs_anc_combined = {q: np.zeros(max(NUM_ROUNDS)) for q in anc_qubits}
-    probs_data_combined = {q: np.zeros(len(NUM_ROUNDS)) for q in data_qubits}
+    probs_0_anc_combined = {q: np.zeros(max(NUM_ROUNDS)) for q in anc_qubits}
+    probs_0_data_combined = {q: np.zeros(len(NUM_ROUNDS)) for q in data_qubits}
+    probs_1_anc_combined = {q: np.zeros(max(NUM_ROUNDS)) for q in anc_qubits}
+    probs_1_data_combined = {q: np.zeros(len(NUM_ROUNDS)) for q in data_qubits}
+    probs_2_anc_combined = {q: np.zeros(max(NUM_ROUNDS)) for q in anc_qubits}
+    probs_2_data_combined = {q: np.zeros(len(NUM_ROUNDS)) for q in data_qubits}
 
     counts = np.zeros(len(NUM_ROUNDS))
 
@@ -99,18 +103,32 @@ for element in sequence_generator(STRING_DATA):
         probs_xr = xr.load_dataset(data_dir / f"{PROBS_NAME}.nc")
 
         for anc_qubit in anc_qubits:
-            probs_anc_combined[anc_qubit][:num_rounds] += probs_xr.probs_anc.sel(
+            probs_0_anc_combined[anc_qubit][:num_rounds] += probs_xr.probs_anc.sel(
+                anc_qubit=anc_qubit, state=0
+            )
+            probs_1_anc_combined[anc_qubit][:num_rounds] += probs_xr.probs_anc.sel(
+                anc_qubit=anc_qubit, state=1
+            )
+            probs_2_anc_combined[anc_qubit][:num_rounds] += probs_xr.probs_anc.sel(
                 anc_qubit=anc_qubit, state=2
             )
         counts[:num_rounds] += 1
 
         for data_qubit in data_qubits:
-            probs_data_combined[data_qubit][
+            probs_0_data_combined[data_qubit][
+                NUM_ROUNDS.index(num_rounds)
+            ] = probs_xr.probs_data.sel(data_qubit=data_qubit, state=0)
+            probs_1_data_combined[data_qubit][
+                NUM_ROUNDS.index(num_rounds)
+            ] = probs_xr.probs_data.sel(data_qubit=data_qubit, state=1)
+            probs_2_data_combined[data_qubit][
                 NUM_ROUNDS.index(num_rounds)
             ] = probs_xr.probs_data.sel(data_qubit=data_qubit, state=2)
 
     for anc_qubit in anc_qubits:
-        probs_anc_combined[anc_qubit] /= counts
+        probs_0_anc_combined[anc_qubit] /= counts
+        probs_1_anc_combined[anc_qubit] /= counts
+        probs_2_anc_combined[anc_qubit] /= counts
 
     # plot
     fig, (ax0, ax1) = plt.subplots(ncols=2, figsize=(10, 5))
@@ -118,7 +136,7 @@ for element in sequence_generator(STRING_DATA):
     for anc_qubit in anc_qubits:
         ax0.plot(
             np.arange(1, max(NUM_ROUNDS) + 1),
-            probs_anc_combined[anc_qubit],
+            probs_2_anc_combined[anc_qubit],
             label=f"{anc_qubit}",
             color=colors_anc[anc_qubit],
             linestyle="-",
@@ -128,10 +146,10 @@ for element in sequence_generator(STRING_DATA):
     for data_qubit in data_qubits:
         ax1.plot(
             NUM_ROUNDS,
-            probs_data_combined[data_qubit],
+            probs_2_data_combined[data_qubit],
             label=f"{data_qubit}",
             color=colors_data[data_qubit],
-            linestyle="--",
+            linestyle="-",
             marker="none",
         )
 
@@ -141,6 +159,7 @@ for element in sequence_generator(STRING_DATA):
     ax0.set_xlim(0, max(NUM_ROUNDS) + 1)
     ax0.xaxis.set_major_locator(MaxNLocator(integer=True))
     ax0.set_ylim(ymin=0)
+    ax0.axhline(0.5, color="gray", linestyle="--")
 
     ax1.legend(loc="best")
     ax1.set_xlabel("QEC round, R")
@@ -148,6 +167,7 @@ for element in sequence_generator(STRING_DATA):
     ax1.set_xlim(0, max(NUM_ROUNDS) + 1)
     ax1.xaxis.set_major_locator(MaxNLocator(integer=True))
     ax1.set_ylim(ymin=0)
+    ax1.axhline(0.5, color="gray", linestyle="--")
 
     # common y limits
     ymax = max(ax0.get_ylim()[1], ax1.get_ylim()[1])
@@ -157,6 +177,110 @@ for element in sequence_generator(STRING_DATA):
     fig.tight_layout()
     fig.savefig(
         output_dir / f"{PROBS_NAME}_prob2.pdf",
+        format="pdf",
+    )
+
+    plt.close()
+
+    # plot
+    fig, (ax0, ax1) = plt.subplots(ncols=2, figsize=(10, 5))
+
+    for anc_qubit in anc_qubits:
+        ax0.plot(
+            np.arange(1, max(NUM_ROUNDS) + 1),
+            probs_0_anc_combined[anc_qubit],
+            label=f"{anc_qubit}",
+            color=colors_anc[anc_qubit],
+            linestyle="-",
+            marker="none",
+        )
+
+    for data_qubit in data_qubits:
+        ax1.plot(
+            NUM_ROUNDS,
+            probs_0_data_combined[data_qubit],
+            label=f"{data_qubit}",
+            color=colors_data[data_qubit],
+            linestyle="-",
+            marker="none",
+        )
+
+    ax0.legend(loc="best")
+    ax0.set_xlabel("QEC round, r")
+    ax0.set_ylabel("estimated Prob(|0>)")
+    ax0.set_xlim(0, max(NUM_ROUNDS) + 1)
+    ax0.xaxis.set_major_locator(MaxNLocator(integer=True))
+    ax0.set_ylim(ymin=0)
+    ax0.axhline(0.5, color="gray", linestyle="--")
+
+    ax1.legend(loc="best")
+    ax1.set_xlabel("QEC round, R")
+    ax1.set_ylabel("estimated Prob(|0>)")
+    ax1.set_xlim(0, max(NUM_ROUNDS) + 1)
+    ax1.xaxis.set_major_locator(MaxNLocator(integer=True))
+    ax1.set_ylim(ymin=0)
+    ax1.axhline(0.5, color="gray", linestyle="--")
+
+    # common y limits
+    ymax = max(ax0.get_ylim()[1], ax1.get_ylim()[1])
+    ax0.set_ylim(ymax=ymax)
+    ax1.set_ylim(ymax=ymax)
+
+    fig.tight_layout()
+    fig.savefig(
+        output_dir / f"{PROBS_NAME}_prob0.pdf",
+        format="pdf",
+    )
+
+    plt.close()
+
+    # plot
+    fig, (ax0, ax1) = plt.subplots(ncols=2, figsize=(10, 5))
+
+    for anc_qubit in anc_qubits:
+        ax0.plot(
+            np.arange(1, max(NUM_ROUNDS) + 1),
+            probs_1_anc_combined[anc_qubit],
+            label=f"{anc_qubit}",
+            color=colors_anc[anc_qubit],
+            linestyle="-",
+            marker="none",
+        )
+
+    for data_qubit in data_qubits:
+        ax1.plot(
+            NUM_ROUNDS,
+            probs_1_data_combined[data_qubit],
+            label=f"{data_qubit}",
+            color=colors_data[data_qubit],
+            linestyle="-",
+            marker="none",
+        )
+
+    ax0.legend(loc="best")
+    ax0.set_xlabel("QEC round, r")
+    ax0.set_ylabel("estimated Prob(|1>)")
+    ax0.set_xlim(0, max(NUM_ROUNDS) + 1)
+    ax0.xaxis.set_major_locator(MaxNLocator(integer=True))
+    ax0.set_ylim(ymin=0)
+    ax0.axhline(0.5, color="gray", linestyle="--")
+
+    ax1.legend(loc="best")
+    ax1.set_xlabel("QEC round, R")
+    ax1.set_ylabel("estimated Prob(|1>)")
+    ax1.set_xlim(0, max(NUM_ROUNDS) + 1)
+    ax1.xaxis.set_major_locator(MaxNLocator(integer=True))
+    ax1.set_ylim(ymin=0)
+    ax1.axhline(0.5, color="gray", linestyle="--")
+
+    # common y limits
+    ymax = max(ax0.get_ylim()[1], ax1.get_ylim()[1])
+    ax0.set_ylim(ymax=ymax)
+    ax1.set_ylim(ymax=ymax)
+
+    fig.tight_layout()
+    fig.savefig(
+        output_dir / f"{PROBS_NAME}_prob1.pdf",
         format="pdf",
     )
 
