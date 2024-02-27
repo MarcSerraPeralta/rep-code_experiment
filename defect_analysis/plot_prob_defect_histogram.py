@@ -125,9 +125,6 @@ for element in sequence_generator(STRING_DATA):
             counts, _ = np.histogram(values, bins=BINS)
             prob_defects[anc_qubit] += counts
 
-        if num_rounds >= 10:
-            break
-
     # plot the results
     fig, ax = plt.subplots()
     bin_centers = 0.5 * (BINS[:-1] + BINS[1:])
