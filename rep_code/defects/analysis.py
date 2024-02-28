@@ -1,7 +1,7 @@
 from typing import Tuple
 
 import numpy as np
-from scipy.special import comb
+from scipy.special import comb, factorial
 from scipy.optimize import curve_fit
 
 
@@ -15,6 +15,41 @@ def fit_binomial(k: np.ndarray, pdf: np.ndarray, n: float):
     binomial_funct = lambda x, p: binomial_dist(x, n, p)
     popt, perr = curve_fit(
         binomial_funct,
+        k,
+        pdf,
+        bounds=bounds,
+        p0=p0,
+    )
+    return popt
+
+
+def gaussian_dist(k: np.ndarray, mu: float, sigma: float) -> float:
+    return np.exp(-0.5 * ((k - mu) / sigma) ** 2) / (np.sqrt(2 * np.pi) * sigma)
+
+
+def fit_gaussian(k: np.ndarray, pdf: np.ndarray):
+    bounds = ((0, 1e-15), (np.max(k), np.max(k)))
+    mu_guess = np.sum(k * pdf)
+    p0 = (mu_guess, np.sum(pdf * (k - mu_guess) ** 2))
+    popt, perr = curve_fit(
+        gaussian_dist,
+        k,
+        pdf,
+        bounds=bounds,
+        p0=p0,
+    )
+    return popt
+
+
+def poisson_dist(k: np.ndarray, l: float) -> float:
+    return np.power(l, k) * np.exp(-l) / factorial(k)
+
+
+def fit_poisson(k: np.ndarray, pdf: np.ndarray):
+    bounds = ((0,), (np.max(k),))
+    p0 = (np.sum(k * pdf),)
+    popt, perr = curve_fit(
+        poisson_dist,
         k,
         pdf,
         bounds=bounds,
