@@ -8,6 +8,7 @@ from surface_sim.models import (
     CircuitNoiseModel,
     ExperimentalNoiseModel,
 )
+from surface_sim import Setup
 
 
 class DecoherenceNoiseModelExp(DecoherenceNoiseModel):
