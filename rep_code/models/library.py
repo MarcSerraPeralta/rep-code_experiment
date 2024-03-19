@@ -26,6 +26,16 @@ class DecoherenceNoiseModelExp(DecoherenceNoiseModel):
             yield from self.idle(qubits, duration)
 
 
+class IncNoiseModelExp(NoiselessModel):
+    def x_echo(self, qubits: Sequence[str]) -> Iterator[CircuitInstruction]:
+        yield CircuitInstruction("X", targets=self.get_inds(qubits))
+        for qubit in qubits:
+            prob = self.params("sq_error_prob", qubit)
+            yield CircuitInstruction(
+                "DEPOLARIZE1", targets=self.get_inds([qubit]), gate_args=[prob]
+            )
+
+
 class ExperimentalNoiseModelExp(ExperimentalNoiseModel):
     def x_echo(self, qubits: Sequence[str]) -> Iterator[CircuitInstruction]:
         duration = 0.5 * (self.gate_duration("X_ECHO") - self.gate_duration("X"))

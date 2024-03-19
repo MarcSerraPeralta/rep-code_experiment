@@ -3,6 +3,7 @@ from .library import (
     NoiselessModelExp,
     CircuitNoiseModelExp,
     ExperimentalNoiseModelExp,
+    IncNoiseModelExp,
 )
 
 __all__ = [
@@ -10,4 +11,5 @@ __all__ = [
     "NoiselessModelExp",
     "CircuitNoiseModelExp",
     "ExperimentalNoiseModelExp",
+    "IncNoiseModelExp",
 ]
