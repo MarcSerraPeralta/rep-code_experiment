@@ -27,6 +27,11 @@ class DecoherenceNoiseModelExp(DecoherenceNoiseModel):
 
 
 class IncNoiseModelExp(NoiselessModel):
+    def __init__(self, setup: Setup, qubit_inds: Dict[str, int]) -> None:
+        # NoiselessModel does not include `setup` as its inputs for initialization
+        self._setup = setup
+        self._qubit_inds = qubit_inds
+
     def x_echo(self, qubits: Sequence[str]) -> Iterator[CircuitInstruction]:
         yield CircuitInstruction("X", targets=self.get_inds(qubits))
         for qubit in qubits:
