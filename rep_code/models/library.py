@@ -1,4 +1,4 @@
-from typing import Sequence, Iterator
+from typing import Sequence, Iterator, Dict
 
 from stim import CircuitInstruction
 
